@@ -1,17 +1,15 @@
 http:
-  addr: ":9091"           # Prometheus指标暴露接口
-
+  addr: ":9091"                             # Prometheus指标暴露接口
 collector:
-  interval: "10s"         # 采集间隔
-  enable_disk: true     # 启用磁盘采集
-  enable_network: true  # 启用网络采集
-  enable_cpu: true #启用cpu采集
-  ignore_disks: ["loop","ram","tmpfs"]  #忽略虚拟磁盘
-  ignore_networks: ["lo"] #忽略本地回环网卡
+  interval: "10s"                           # 采集间隔
+  enable_disk: true                         # 启用磁盘采集
+  enable_network: true                      # 启用网络采集
+  enable_cpu: true                          # 启用cpu采集
+  ignore_disks: ["loop","ram","tmpfs"]      # 忽略虚拟磁盘
+  ignore_networks: ["lo"]                   # 忽略本地回环网卡
   cpu:
-    collect_per_core: true  # 采集单颗核心cpu使用率
-
+    collect_per_core: true                  # 采集单颗核心cpu使用率
 log:
-  level: "debug"   # 日志级别：debug/info/warn/error
-  format: "console"  # 日志格式: json/console
-  path: "./logs"  # 日志储存路径
+  level: "debug"                            # 日志级别：debug/info/warn/error
+  format: "console"                         # 日志格式: json/console
+  path: "./logs"                            # 日志储存路径
