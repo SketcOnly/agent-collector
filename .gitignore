@@ -2,31 +2,50 @@
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
 # Binaries for programs and plugins
+# Go
+/bin/
+/build/
+/dist/
+*.test
+vendor/
+
+# Temp / logs
+*.log
+*.tmp
+*.out
+*.pid
+
+# Environment
+.env
+.env.local
+*.secret
+
+# Editor / IDE
+.vscode/
+.idea/
+*.iml
+
+# Docker
+docker-data/
+docker_volume_*/
+
+# Node / frontend (if any)
+node_modules/
+
+# Python (if any)
+__pycache__/
+*.pyc
+
+# Coverage
+coverage/
+*.cov
+*.prof
+
+# Binary / archive
+*.zip
+*.tar.gz
 *.exe
-*.exe~
 *.dll
 *.so
 *.dylib
 
-# Test binary, built with `go test -c`
-*.test
-
-# Code coverage profiles and other test artifacts
-*.out
-coverage.*
-*.coverprofile
-profile.cov
-
-# Dependency directories (remove the comment below to include it)
-# vendor/
-
-# Go workspace file
-go.work
-go.work.sum
-
-# env file
-.env
-
-# Editor/IDE
-# .idea/
-# .vscode/
