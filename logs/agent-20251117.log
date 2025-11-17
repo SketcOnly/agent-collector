@@ -1,0 +1,139 @@
+{"level":"info","timestamp":"2025-11-17T18:35:20.620377+08:00","caller":"agent/agent.go:26","msg":"logger config info ","path":"./logs","level":"debug","format":"console"}
+{"level":"info","timestamp":"2025-11-17T18:35:20.621048+08:00","caller":"agent/agent.go:27","msg":"读取配置文件 config.yaml"}
+{"level":"info","timestamp":"2025-11-17T18:36:47.404538+08:00","caller":"agent/agent.go:26","msg":"logger config info ","path":"./logs","level":"debug","format":"console"}
+{"level":"info","timestamp":"2025-11-17T18:36:47.405174+08:00","caller":"agent/agent.go:27","msg":"读取配置文件 config.yaml"}
+{"level":"info","timestamp":"2025-11-17T18:40:14.314822+08:00","caller":"agent/agent.go:26","msg":"logger config info ","path":"./logs","level":"debug","format":"console"}
+{"level":"info","timestamp":"2025-11-17T18:40:14.315576+08:00","caller":"agent/agent.go:27","msg":"读取配置文件 config.yaml"}
+{"level":"info","timestamp":"2025-11-17T18:44:53.024588+08:00","caller":"agent/agent.go:26","msg":"logger config info ","path":"./logs","level":"debug","format":"console"}
+{"level":"info","timestamp":"2025-11-17T18:44:53.025073+08:00","caller":"agent/agent.go:27","msg":"读取配置文件 config.yaml"}
+{"level":"info","timestamp":"2025-11-17T18:48:48.408978+08:00","caller":"agent/agent.go:26","msg":"logger config info {path 15 0 ./logs <nil>} {level 15 0 debug <nil>} {format 15 0 console <nil>}"}
+{"level":"debug","timestamp":"2025-11-17T18:48:48.409433+08:00","caller":"agent/agent.go:27","msg":"读取配置文件 %sconfig.yaml"}
+{"level":"info","timestamp":"2025-11-17T18:49:00.458246+08:00","caller":"agent/agent.go:26","msg":"logger config info {path 15 0 ./logs <nil>} {level 15 0 debug <nil>} {format 15 0 console <nil>}"}
+{"level":"debug","timestamp":"2025-11-17T18:49:00.459042+08:00","caller":"agent/agent.go:27","msg":"读取配置文件 config.yaml"}
+{"level":"info","timestamp":"2025-11-17T18:55:00.472093+08:00","caller":"agent/agent.go:26","msg":"logger config info {path 15 0 ./logs <nil>} {level 15 0 debug <nil>} {format 15 0 console <nil>}"}
+{"level":"debug","timestamp":"2025-11-17T18:55:00.473046+08:00","caller":"agent/agent.go:27","msg":"读取配置文件 config.yaml"}
+{"level":"info","timestamp":"2025-11-17T18:56:04.128195+08:00","caller":"agent/agent.go:30","msg":"开吃次阿吉"}
+{"level":"info","timestamp":"2025-11-17T18:56:04.128814+08:00","caller":"agent/agent.go:31","msg":"logger config info {path 15 0 ./logs <nil>} {level 15 0 debug <nil>} {format 15 0 console <nil>}"}
+{"level":"debug","timestamp":"2025-11-17T18:56:04.12883+08:00","caller":"agent/agent.go:32","msg":"读取配置文件 config.yaml"}
+{"level":"info","timestamp":"2025-11-17T19:03:11.525019+08:00","caller":"logger/logger.go:186","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"2025-11-17T19:03:11.525834+08:00","caller":"logger/logger.go:186","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"2025-11-17T19:03:11.525872+08:00","caller":"logger/logger.go:184","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"2025-11-17T19:14:06.810721+08:00","caller":"logger/logger.go:261","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"2025-11-17T19:14:06.811333+08:00","caller":"logger/logger.go:261","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"2025-11-17T19:14:06.811349+08:00","caller":"logger/logger.go:259","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"2025-11-17T19:15:30.179268+08:00","caller":"logger/logger.go:261","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"2025-11-17T19:15:30.180196+08:00","caller":"logger/logger.go:261","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"2025-11-17T19:15:30.180243+08:00","caller":"logger/logger.go:259","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"2025-11-17T19:15:53.881819+08:00","caller":"logger/logger.go:186","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"2025-11-17T19:15:53.882346+08:00","caller":"logger/logger.go:186","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"2025-11-17T19:15:53.882365+08:00","caller":"logger/logger.go:184","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"2025-11-17T19:18:32.378804+08:00","caller":"logger/logger.go:186","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"2025-11-17T19:18:32.379394+08:00","caller":"logger/logger.go:186","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"2025-11-17T19:18:32.37942+08:00","caller":"logger/logger.go:184","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"2025-11-17 19:23:02.169","caller":"logger/logger.go:190","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"2025-11-17 19:23:02.169","caller":"logger/logger.go:190","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"2025-11-17 19:23:02.169","caller":"logger/logger.go:188","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"2025-11-17 19:24:05.834 +08:00","caller":"logger/logger.go:190","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"2025-11-17 19:24:05.834 +08:00","caller":"logger/logger.go:190","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"2025-11-17 19:24:05.834 +08:00","caller":"logger/logger.go:188","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"2025-11-17/19:24:24.177 +08:00","caller":"logger/logger.go:190","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"2025-11-17/19:24:24.178 +08:00","caller":"logger/logger.go:190","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"2025-11-17/19:24:24.178 +08:00","caller":"logger/logger.go:188","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"2025-11-17 19:24:42.064 +08:00","caller":"logger/logger.go:190","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"2025-11-17 19:24:42.065 +08:00","caller":"logger/logger.go:190","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"2025-11-17 19:24:42.065 +08:00","caller":"logger/logger.go:188","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"2025-11-17 19:27:49.112 +08:00","caller":"logger/logger.go:217","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"2025-11-17 19:27:49.113 +08:00","caller":"logger/logger.go:217","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"2025-11-17 19:27:49.113 +08:00","caller":"logger/logger.go:215","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:29:31.037 +08:00\u001b[0m","caller":"logger/logger.go:222","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:29:31.038 +08:00\u001b[0m","caller":"logger/logger.go:222","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 19:29:31.038 +08:00\u001b[0m","caller":"logger/logger.go:220","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:30:08.289 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"开吃次阿吉","collector":"metrics-collector","gid":"group-1001"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:30:08.290 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 19:30:08.290 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:43:10.580 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"开吃次阿吉","collector":"metrics-collector","gid":"1"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:43:10.581 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 19:43:10.581 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:45:42.570 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"开吃次阿吉","collector":"metrics-collector","gid":"1"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:45:42.571 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"metrics-collector","gid":"group-1001","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 19:45:42.571 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"metrics-collector","gid":"group-1001","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:46:12.709 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"开吃次阿吉","collector":"metrics-collector","gid":"1"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:46:12.709 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"metrics-collector","gid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 19:46:12.709 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"metrics-collector","gid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:47:17.001 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"开吃次阿吉","collector":"metrics-collector","goid":"1"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:47:17.002 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"metrics-collector","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 19:47:17.002 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"metrics-collector","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:48:24.033 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"开吃次阿吉","collector":"metrics-collector","goid":"1"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:48:24.033 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"metrics-collector","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 19:48:24.034 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"metrics-collector","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:49:15.477 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"开吃次阿吉","collector":"agent","goid":"1"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:49:15.478 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"agent","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 19:49:15.478 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"agent","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 19:52:10.223 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"agent","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 19:52:10.224 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"agent","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 20:24:51.816 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"agent","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 20:24:51.817 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"agent","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 20:25:07.525 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"agent","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 20:25:07.526 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"agent","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 20:30:13.590 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"agent","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 20:30:13.591 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"agent","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 20:30:55.088 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"agent","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 20:30:55.089 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"agent","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 20:31:48.037 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"agent","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 20:31:48.038 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"agent","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 20:33:31.543 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"agent","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 20:33:31.544 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"agent","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 20:38:12.688 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"agent","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 20:38:12.689 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"agent","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:04:15.111 +08:00\u001b[0m","caller":"collector/collector.go:43","msg":"registered collector","collector":"cpu-collector"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:04:15.112 +08:00\u001b[0m","caller":"server/server.go:52","msg":"starting HTTP server","addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:04:15.112 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"agent","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 21:04:15.112 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"agent","goid":"1","config":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:08:21.843 +08:00\u001b[0m","caller":"collector/collector.go:43","msg":"registered collector","collector":"cpu-collector"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:08:21.844 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"run","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 21:08:21.844 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"run","goid":"1","path":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:08:21.844 +08:00\u001b[0m","caller":"server/server.go:52","msg":"starting HTTP server","addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:09:26.722 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"logger config info ","collector":"run","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 21:09:26.722 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"读取配置文件","collector":"run","goid":"1","path":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:09:26.722 +08:00\u001b[0m","caller":"collector/collector.go:43","msg":"registered collector","collector":"cpu-collector"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:09:26.722 +08:00\u001b[0m","caller":"server/server.go:52","msg":"starting HTTP server","addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:57:30.040 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"Log initialization successful ","collector":"run","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 21:57:30.041 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"Configuration initialization successful","collector":"run","goid":"1","path":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:57:30.041 +08:00\u001b[0m","caller":"collector/collector.go:43","msg":"registered collector","collector":"cpu-collector"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 21:57:30.042 +08:00\u001b[0m","caller":"server/server.go:52","msg":"starting HTTP server","addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:04:38.634 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"Log initialization successful ","collector":"main","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 22:04:38.635 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"Configuration initialization successful","collector":"main","goid":"1","path":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:04:38.635 +08:00\u001b[0m","caller":"collector/collector.go:43","msg":"registered collector","collector":"cpu-collector"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:04:38.635 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"starting HTTP server","collector":"server","goid":"1","addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:04:38.635 +08:00\u001b[0m","caller":"server/server.go:56","msg":"starting HTTP server","addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:22:21.915 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"Log initialization successful ","collector":"main","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 22:22:21.916 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"Configuration initialization successful","collector":"main","goid":"1","path":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:22:21.916 +08:00\u001b[0m","caller":"collector/collector.go:43","msg":"registered collector","collector":"cpu-collector"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:22:21.916 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"starting HTTP server","collector":"http-collector","goid":"1","addr":":9091","addr":":9091","read_timeout":5,"write_timeout":10}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:29:27.186 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"Log initialization successful ","collector":"main","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 22:29:27.187 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"Configuration initialization successful","collector":"main","goid":"1","path":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:29:27.187 +08:00\u001b[0m","caller":"collector/collector.go:43","msg":"registered collector","collector":"cpu-collector"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:29:27.187 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"starting HTTP server","collector":"http-collector","goid":"1","listen_addr":":9091","read_timeout":5,"write_timeout":10,"idle_timeout":15}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:41:34.731 +08:00\u001b[0m","caller":"signal/signal.go:20","msg":"received shutdown signal","signal":"interrupt"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:41:34.731 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"starting graceful shutdown of HTTP server","collector":"http-collector","goid":"12","listen_addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:41:34.731 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"HTTP server stopped listening","collector":"http-collector","goid":"9","listen_addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:41:34.731 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"HTTP server shutdown successfully","collector":"http-collector","goid":"12","listen_addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:41:34.732 +08:00\u001b[0m","caller":"signal/signal.go:34","msg":"shutdown completed"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:44:33.554 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"Log initialization successful ","collector":"complete","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 22:44:33.555 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"Configuration initialization successful","collector":"complete","goid":"1","path":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:44:33.555 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"registered collector","collector":"complete","goid":"1","collector":"cpu-collector"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:44:33.555 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"starting HTTP server","collector":"http-collector","goid":"1","listen_addr":":9091","read_timeout":5,"write_timeout":10,"idle_timeout":15}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:47:33.265 +08:00\u001b[0m","caller":"signal/signal.go:20","msg":"received shutdown signal","signal":"interrupt"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:47:33.265 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"starting graceful shutdown of HTTP server","collector":"http-collector","goid":"31","listen_addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:47:33.265 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"HTTP server stopped listening","collector":"http-collector","goid":"41","listen_addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:47:33.265 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"HTTP server shutdown successfully","collector":"http-collector","goid":"31","listen_addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:47:33.265 +08:00\u001b[0m","caller":"signal/signal.go:34","msg":"shutdown completed"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:47:37.326 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"Log initialization successful ","collector":"complete","goid":"1","path":"./logs","level":"debug","format":"console"}
+{"level":"debug","timestamp":"\u001b[34m2025-11-17 22:47:37.327 +08:00\u001b[0m","caller":"logger/logger.go:217","msg":"Configuration initialization successful","collector":"complete","goid":"1","path":"config.yaml"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:47:37.327 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"registered collector","collector":"complete","goid":"1","collector":"cpu-collector"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:47:37.327 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"starting HTTP server","collector":"http-collector","goid":"1","listen_addr":":9091","read_timeout":5,"write_timeout":10,"idle_timeout":15}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:49:17.113 +08:00\u001b[0m","caller":"signal/signal.go:20","msg":"received shutdown signal","signal":"interrupt"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:49:17.113 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"starting graceful shutdown of HTTP server","collector":"http-collector","goid":"107","listen_addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:49:17.113 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"HTTP server stopped listening","collector":"http-collector","goid":"8","listen_addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:49:17.113 +08:00\u001b[0m","caller":"logger/logger.go:219","msg":"HTTP server shutdown successfully","collector":"http-collector","goid":"107","listen_addr":":9091"}
+{"level":"info","timestamp":"\u001b[34m2025-11-17 22:49:17.113 +08:00\u001b[0m","caller":"signal/signal.go:34","msg":"shutdown completed"}
