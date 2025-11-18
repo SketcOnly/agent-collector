@@ -32,9 +32,9 @@ func Run(c *cli.Context) error {
 	//logger.SetDefaultGid(strconv.FormatUint(goid.GetGID(), 10))
 	//goroutineid := logger.GetDefaultGid()
 
-	logger.Info("Log initialization successful ", collector, zap.String("path", cfg.Log.Path), zap.String("level", cfg.Log.Level),
+	logger.Info("log initialization successful ", collector, zap.String("path", cfg.Log.Path), zap.String("level", cfg.Log.Level),
 		zap.String("format", cfg.Log.Format))
-	logger.Debug("Configuration initialization successful", collector, zap.String("path", c.String("config")))
+	logger.Debug("configuration initialization successful", collector, zap.String("path", c.String("config")))
 
 	// 初始化 Prometheus 注册器
 	registry := registers.InitPromeReaistry(false, cfg)
@@ -43,7 +43,7 @@ func Run(c *cli.Context) error {
 	//server.Start(context.Background())
 
 	// 6. 初始化 HTTP 服务（注入配置、collector、注册器）
-	httpServer := server.NewHTTPServer(cfg.HTTP.Addr, collector, registry)
+	httpServer := server.NewHTTPServer(cfg.HTTP.Addr, registry)
 	if err := httpServer.Start(); err != nil {
 		return fmt.Errorf("start HTTP server failed: %w", err)
 	}
