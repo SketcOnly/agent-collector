@@ -6,6 +6,7 @@
 /bin/
 /build/
 /dist/
+/logs/
 *.test
 vendor/
 
