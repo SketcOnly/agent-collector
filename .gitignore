@@ -6,7 +6,7 @@
 /bin/
 /build/
 /dist/
-/logs/
+/logs/git rm --cached -r logs/
 *.test
 vendor/
 
