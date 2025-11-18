@@ -3,7 +3,6 @@ package collector
 import (
 	"context"
 	"fmt"
-	"github.com/agent-collector/pkg/goid"
 	"github.com/agent-collector/pkg/logger"
 	"time"
 
@@ -56,7 +55,7 @@ func (c *CPUCollector) Name() string {
 func (c *CPUCollector) Init() error {
 	// 预检查CPU可用性
 	if _, err := cpu.Counts(false); err != nil {
-		logger.Error(c.name, fmt.Sprintf("%d", goid.GetGID()), "failed to get CPU counts", zap.Error(err))
+		logger.Error("failed to get CPU counts", "", zap.Error(err))
 		return err
 	}
 	return nil
@@ -87,7 +86,7 @@ func (c *CPUCollector) Collect(ctx context.Context) error {
 	// 3. 采集CPU负载
 	load, err := cload.Avg()
 	if err != nil {
-		logger.Warn(c.name, fmt.Sprintf("%d", goid.GetGID()), "failed to get CPU load", zap.Error(err))
+		logger.Warn("failed to get CPU load", "", zap.Error(err))
 		c.collectErrors.WithLabelValues(c.name).Inc()
 		return nil
 	}
@@ -95,7 +94,7 @@ func (c *CPUCollector) Collect(ctx context.Context) error {
 	c.metrics.load5.Set(load.Load5)
 	c.metrics.load15.Set(load.Load15)
 
-	logger.Debug(c.name, fmt.Sprintf("%d", goid.GetGID()), "collected CPU metrics", zap.Float64("load1", load.Load1))
+	logger.Debug("collected CPU metrics", "", zap.Float64("load1", load.Load1))
 	return nil
 }
 

@@ -23,10 +23,18 @@ func main() {
 	}
 	//	初始化默认日志(用于启动阶段错误输出)
 	if err := agent.InitDefaultLogger(); err != nil {
-		fmt.Fprintf(os.Stderr, "init default logger error: %v\n", err)
+		_, err := fmt.Fprintf(os.Stderr, "init default logger error: %v\n", err)
+		if err != nil {
+			return
+		}
 		os.Exit(1)
 	}
-	defer zap.L().Sync()
+	defer func(l *zap.Logger) {
+		err := l.Sync()
+		if err != nil {
+			return
+		}
+	}(zap.L())
 	if err := app.Run(os.Args); err != nil {
 		zap.L().Fatal("run error", zap.Error(err))
 	}
