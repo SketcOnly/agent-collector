@@ -2,11 +2,9 @@ package collector
 
 import (
 	"context"
-	"fmt"
-	"github.com/agent-collector/pkg/goid"
 	"github.com/agent-collector/pkg/logger"
 	"time"
-	
+
 	"go.uber.org/zap"
 )
 
@@ -42,32 +40,32 @@ func NewRegistry(interval time.Duration) *Registry {
 // -------------------------- 实现Agent接口 --------------------------
 func (r *Registry) Register(c Collector) {
 	r.collectors = append(r.collectors, c)
-	logger.Info("", fmt.Sprintf("%d", goid.GetGID()), "registered collector", zap.String("collector", c.Name()))
+	logger.Info("registered collector", "", zap.String("collector", c.Name()))
 }
 
 func (r *Registry) Start(ctx context.Context) {
 	// 初始化所有采集器
 	if err := r.InitAll(); err != nil {
-		logger.Fatal("", fmt.Sprintf("%d", goid.GetGID()), "failed to init collectors", zap.Error(err))
+		logger.Fatal("failed to init collectors", "", zap.Error(err))
 	}
-	
+
 	// 启动定时器
 	r.ticker = time.NewTicker(r.interval)
-	logger.Info("", fmt.Sprintf("%d", goid.GetGID()), "collector agent started", zap.Duration("interval", r.interval))
-	
+	logger.Info("collector agent started", "", zap.Duration("interval", r.interval))
+
 	// 循环采集（首次启动立即采集）
 	go func() {
 		if err := r.CollectAll(ctx); err != nil {
-			logger.Warn("", fmt.Sprintf("%d", goid.GetGID()), "first collect failed", zap.Error(err))
+			logger.Warn("first collect failed", "", zap.Error(err))
 		}
-		
+
 		for {
 			select {
 			case <-r.ticker.C:
 				_ = r.CollectAll(ctx) // 单采集器失败不影响整体
 			case <-r.ctx.Done():
 				r.ticker.Stop()
-				logger.Info("", fmt.Sprintf("%d", goid.GetGID()), "collector agent stopped")
+				logger.Info("collector agent stopped", "")
 				return
 			}
 		}
@@ -75,7 +73,7 @@ func (r *Registry) Start(ctx context.Context) {
 }
 
 func (r *Registry) Shutdown(ctx context.Context) error {
-	logger.Info("", fmt.Sprintf("%d", goid.GetGID()), "shutting down collector agent")
+	logger.Info("shutting down collector agent", "")
 	r.cancel()
 	return r.CloseAll()
 }
@@ -84,10 +82,10 @@ func (r *Registry) Shutdown(ctx context.Context) error {
 func (r *Registry) InitAll() error {
 	for _, c := range r.collectors {
 		if err := c.Init(); err != nil {
-			logger.Error("", fmt.Sprintf("%d", goid.GetGID()), "failed to init collector", zap.String("collector", c.Name()), zap.Error(err))
+			logger.Error("failed to init collector", "", zap.String("collector", c.Name()), zap.Error(err))
 			return err
 		}
-		logger.Info("", fmt.Sprintf("%d", goid.GetGID()), "initialized collector", zap.String("collector", c.Name()))
+		logger.Info("initialized collector", "", zap.String("collector", c.Name()))
 	}
 	return nil
 }
@@ -95,7 +93,7 @@ func (r *Registry) InitAll() error {
 func (r *Registry) CollectAll(ctx context.Context) error {
 	for _, c := range r.collectors {
 		if err := c.Collect(ctx); err != nil {
-			logger.Warn("", fmt.Sprintf("%d", goid.GetGID()), "failed to collect data", zap.String("collector", c.Name()), zap.Error(err))
+			logger.Warn("failed to collect data", "", zap.String("collector", c.Name()), zap.Error(err))
 			continue
 		}
 	}
@@ -106,7 +104,7 @@ func (r *Registry) CloseAll() error {
 	var lastErr error
 	for _, c := range r.collectors {
 		if err := c.Close(); err != nil {
-			logger.Error("", fmt.Sprintf("%d", goid.GetGID()), "failed to close collector", zap.String("collector", c.Name()), zap.Error(err))
+			logger.Error("failed to close collector", "", zap.String("collector", c.Name()), zap.Error(err))
 			lastErr = err
 		}
 	}
