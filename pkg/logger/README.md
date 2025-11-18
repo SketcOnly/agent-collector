@@ -8,7 +8,14 @@
 import "github.com/agent-collector/pkg/logger"
 ```
 
-logger包基于zap和file\-rotatelogs实现高性能日志工具，支持以下核心特性： 1. 双输出目标：控制台彩色格式化输出 \+ 文件JSON格式持久化 2. 日志轮转：按天自动轮转日志文件，保留7天历史日志 3. 级别过滤：支持debug/info/warn/error/panic/fatal六级日志过滤 4. 默认字段：自动注入collector（可覆盖）和goroutine ID字段 5. 增强可读性：控制台输出带颜色区分（时间蓝/级别多色/调用者精简路径） 6. 线程安全：默认字段读写通过读写锁保护，支持并发场景 7. 调试友好：错误级别日志自动附加堆栈信息，调用者信息包含文件路径\+行号
+logger包基于zap和file\-rotatelogs实现高性能日志工具，支持以下核心特性：
+1. 双输出目标：控制台彩色格式化输出 \+ 文件JSON格式持久化 
+2. 日志轮转：按天自动轮转日志文件，保留7天历史日志 
+3. 级别过滤：支持debug/info/warn/error/panic/fatal六级日志过滤 
+4. 默认字段：自动注入collector（可覆盖）和goroutine ID字段 
+5. 增强可读性：控制台输出带颜色区分（时间蓝/级别多色/调用者精简路径） 
+6. 线程安全：默认字段读写通过读写锁保护，支持并发场景 
+7. 调试友好：错误级别日志自动附加堆栈信息，调用者信息包含文件路径\+行号
 
 
 # 组件组成与依赖
@@ -52,8 +59,49 @@ flowchart TD
     end
 ```
 
-
-
+# 核心调用关系图（用户使用流程）
+```mermaid
+sequenceDiagram
+    participant User as 使用者
+    participant API as Logger包API
+    participant Internal as 内部处理模块
+    participant Core as 核心组件
+    participant Output as 输出目标
+    
+    %% 初始化流程
+    User->>API: Init(cfg) 初始化日志
+    API->>Internal: loggerInitOnce.Do(初始化逻辑)
+    Internal->>Internal: 解析日志级别/创建存储目录
+    Internal->>Core: 初始化rotatelogs轮转器
+    Internal->>Core: 配置控制台/JSON编码器
+    Core->>Core: 创建zap.Core（双输出Tee）
+    Core->>API: 初始化完成（loggerInitialized=true）
+    
+    %% 可选：设置默认collector
+    User->>API: SetDefaultCollector("collector-name")
+    API->>Internal: 读写锁保护更新defaultFields
+    
+    %% 日志输出流程（以Info为例）
+    User->>API: Info("msg", "override-collector", fields...)
+    API->>Internal: log(zap.InfoLevel, msg, ...)
+    Internal->>Internal: 校验loggerInitialized（未初始化则panic）
+    Internal->>Internal: getDefaultFields() 合并collector（优先override）
+    Internal->>Internal: getGID() 获取当前goroutine ID
+    Internal->>Core: 调用zap.Logger.Check(级别)
+    Core->>Core: 合并默认字段+自定义fields
+    Core->>Output: 控制台编码器→stdout（彩色输出）
+    Core->>Output: JSON编码器→轮转器→日志文件（结构化存储）
+    Output->>Output: 日志文件按天轮转/保留7天
+    
+    %% 收尾：同步日志
+    User->>API: Sync()
+    API->>Core: 调用zap.Logger.Sync()
+    Core->>Output: 刷盘缓冲区数据到日志文件
+```
+> 图注说明
+>> 架构图核心逻辑：分层设计解耦，配置层驱动初始化，核心组件负责日志处理，输出层支持双目标存储，API 层提供简洁调用入口。
+> 
+>> 调用关系关键节点：初始化仅执行一次（sync.Once），默认字段读写线程安全（RWMutex），日志输出需先通过级别校验（Check）再写入。
 
 使用规范： 
  1. 程序启动时必须先调用Init\(\)初始化，传入日志配置 
