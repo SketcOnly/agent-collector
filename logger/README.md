@@ -5,7 +5,7 @@
 # logger
 
 ```go
-import "github.com/agent-collector/pkg/logger"
+import "github.com/agent-collector/util/logger"
 ```
 
 logger包基于zap和file\-rotatelogs实现高性能日志工具，支持以下核心特性：
