@@ -23,11 +23,11 @@ import (
 	"strings"
 	"sync"
 	"time"
-	
+
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	
+
 	"github.com/agent-collector/config"
 )
 
@@ -71,12 +71,12 @@ func Init(cfg config.ZapLogConfig) error {
 		case "fat", "fatal":
 			level = zapcore.FatalLevel
 		}
-		
+
 		// 创建日志存储目录（权限0755：所有者读/写/执行，其他用户读/执行）
 		if err = os.MkdirAll(cfg.Path, 0755); err != nil {
 			return
 		}
-		
+
 		// 初始化日志轮转器：按天轮转，保留7天日志
 		writer, wErr := rotatelogs.New(
 			filepath.Join(cfg.Path, "agent-%Y%m%d-000000.log"), // 日志文件名格式（按日期命名）
@@ -87,17 +87,17 @@ func Init(cfg config.ZapLogConfig) error {
 			err = wErr
 			return
 		}
-		
+
 		// customTimeEncoderConsole 控制台输出的时间编码器：蓝色格式化时间（增强可读性）
 		customTimeEncoderConsole := func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 			enc.AppendString(fmt.Sprintf("\033[34m%s\033[0m", t.Format("2006-01-02 15:04:05.000 -07:00")))
 		}
-		
+
 		// customTimeEncoderJSON 文件存储的时间编码器：标准格式化时间（无颜色，适配JSON结构）
 		customTimeEncoderJSON := func(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 			enc.AppendString(t.Format("2006-01-02 15:04:05.000 -07:00"))
 		}
-		
+
 		// coloredLevelEncoder 控制台输出的级别编码器：不同级别日志显示不同颜色
 		// debug(蓝)/info(绿)/warn(黄)/error(红)/panic/fatal(紫)，增强视觉区分度
 		coloredLevelEncoder := func(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
@@ -122,7 +122,7 @@ func Init(cfg config.ZapLogConfig) error {
 			}
 			enc.AppendString(levelStr)
 		}
-		
+
 		// 控制台编码器配置（开发环境友好，格式化输出）
 		consoleEncoderCfg := zap.NewDevelopmentEncoderConfig()
 		consoleEncoderCfg.ConsoleSeparator = " "                // 字段间分隔符（空格）
@@ -134,20 +134,20 @@ func Init(cfg config.ZapLogConfig) error {
 			enc.AppendString(fmt.Sprintf("%s:%d", rel, c.Line))
 		}
 		consoleEncoder := zapcore.NewConsoleEncoder(consoleEncoderCfg) // 控制台输出编码器
-		
+
 		// JSON编码器配置（生产环境友好，结构化存储）
 		jsonCfg := zap.NewProductionEncoderConfig()
 		jsonCfg.TimeKey = "timestamp"                       // JSON中时间字段的key（默认是ts，改为更直观的timestamp）
 		jsonCfg.EncodeTime = customTimeEncoderJSON          // 时间格式统一
 		jsonCfg.EncodeLevel = zapcore.LowercaseLevelEncoder // 级别字段小写（如debug/info）
 		jsonEncoder := zapcore.NewJSONEncoder(jsonCfg)      // 文件存储编码器
-		
+
 		// 创建日志核心：同时输出到控制台和文件，按配置级别过滤
 		core := zapcore.NewTee(
 			zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), level), // 控制台输出
 			zapcore.NewCore(jsonEncoder, zapcore.AddSync(writer), level),       // 文件输出（轮转）
 		)
-		
+
 		// 初始化基础日志实例：
 		// - zap.AddCaller()：记录调用者信息（文件+行号）
 		// - zap.AddCallerSkip(1)：跳过当前包装层，记录真实调用者
@@ -183,12 +183,12 @@ func getDefaultFields(collectorOverride ...string) []zapcore.Field {
 	mu.RLock()
 	collector := defaultFields.Collector
 	mu.RUnlock()
-	
+
 	// 优先使用覆盖值（如果非空）
 	if len(collectorOverride) > 0 && collectorOverride[0] != "" {
 		collector = collectorOverride[0]
 	}
-	
+
 	return []zapcore.Field{
 		zap.String("collector", collector), // 采集器标识字段
 		zap.String("goid", getGID()),       // 当前goroutine ID字段（用于并发调试）
@@ -221,13 +221,13 @@ func log(level zapcore.Level, msg string, collectorOverride string, fields ...za
 	if !loggerInitialized {
 		panic("logger not initialized: call logger.Init() first") // 未初始化时panic，强制用户遵守使用规范
 	}
-	
+
 	// 获取默认字段（支持覆盖collector）
 	defaultFields := getDefaultFields(collectorOverride)
-	
+
 	// 构建最终日志实例：跳过当前log函数层、合并默认字段与自定义字段
 	loggerWithFields := baseLogger.WithOptions(zap.AddCallerSkip(1)).With(defaultFields...).With(fields...)
-	
+
 	// 按级别输出日志（使用Check+Write模式，支持日志级别过滤优化）
 	switch level {
 	case zap.DebugLevel:
