@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"context"
 	"fmt"
 	"github.com/agent-collector/config"
 	"github.com/agent-collector/logger"
@@ -38,7 +39,7 @@ func Run(c *cli.Context) error {
 	logger.Debug("configuration initialization successful", collector, zap.String("path", c.String("config")))
 	
 	// 初始化 Prometheus 注册器
-	registry := registers.InitPromeReaistry(false, cfg)
+	registry, _, _ := registers.InitPromRegistry(context.Background(), cfg.Collector.EnableCPU, cfg)
 	
 	// 7. 启动采集器
 	//server.Start(context.Background())

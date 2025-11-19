@@ -11,7 +11,7 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
@@ -51,7 +51,7 @@ const httpShutdownTimeout = 5 * time.Second
 //  3. 配置HTTP超时参数（读/写/空闲超时）
 func NewHTTPServer(addr string, registry *prometheus.Registry) *HTTPServer {
 	mux := http.NewServeMux()
-	
+
 	// logRequest  请求日志记录辅助函数
 	// 功能：记录请求方法、URL、客户端地址、响应状态码、处理耗时
 	logRequest := func(r *http.Request, msg string, statusCode int, start time.Time) {
@@ -65,34 +65,34 @@ func NewHTTPServer(addr string, registry *prometheus.Registry) *HTTPServer {
 			zap.Duration("duration", time.Since(start)),
 		)
 	}
-	
+
 	// /metrics 端点：暴露Prometheus指标（含自定义注册器中的指标）
 	mux.Handle("/metrics", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		// 用statusWriter包装，捕获响应状态码
 		ww := &statusWriter{ResponseWriter: w, status: 200}
-		
+
 		// 使用自定义Prometheus注册器创建指标处理器
 		promhttp.HandlerFor(registry, promhttp.HandlerOpts{
 			ErrorLog: zap.NewStdLog(logger.GetLogger()), // 复用全局日志器
 		}).ServeHTTP(ww, r)
-		
+
 		// 记录指标请求日志
 		logRequest(r, "metrics request received", ww.status, start)
 	}))
-	
+
 	// /health 端点：服务健康检查（无依赖检查，直接返回200 OK）
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		ww := &statusWriter{ResponseWriter: w, status: 200}
-		
+
 		ww.WriteHeader(http.StatusOK)
 		_, _ = ww.Write([]byte("OK")) // 健康检查响应体
-		
+
 		// 记录健康检查日志
 		logRequest(r, "health check received", ww.status, start)
 	})
-	
+
 	return &HTTPServer{
 		addr:     addr,
 		registry: registry,
@@ -131,7 +131,7 @@ func (s *HTTPServer) Start() error {
 		zap.Duration("write_timeout", s.server.WriteTimeout),
 		zap.Duration("idle_timeout", s.server.IdleTimeout),
 	)
-	
+
 	// 子goroutine中启动服务（避免阻塞主流程）
 	go func() {
 		if err := s.server.ListenAndServe(); err != nil {
@@ -170,11 +170,11 @@ func (s *HTTPServer) Start() error {
 //   - 超时时间固定为httpShutdownTimeout（5秒）
 func (s *HTTPServer) Shutdown() error {
 	logger.Info("starting graceful shutdown of HTTP server", "", zap.String("listen_addr", s.addr))
-	
+
 	// 创建带超时的关闭上下文
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), httpShutdownTimeout)
 	defer cancel() // 确保上下文资源释放
-	
+
 	// 执行优雅关闭
 	if err := s.server.Shutdown(shutdownCtx); err != nil {
 		// 忽略超时错误（超时视为关闭完成）
@@ -208,23 +208,23 @@ func WaitForShutdown(collector string, shutdownFunc func() error) {
 		logger.Error("shutdownFunc is nil, cannot execute shutdown", "")
 		return
 	}
-	
+
 	// 注册信号监听通道（缓冲大小1，避免信号丢失）
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM) // 仅监听指定信号
 	defer signal.Stop(sigChan)                              // 确保程序退出前解除信号监听
-	
+
 	// 日志提示：服务正常运行中
 	logger.Info("service is running, waiting for shutdown signal (SIGINT/SIGTERM)...", "")
-	
+
 	// 阻塞等待信号（程序核心运行阶段）
 	sig := <-sigChan
 	logger.Info("received shutdown signal", "", zap.String("signal", sig.String()))
-	
+
 	// 执行关闭逻辑（带超时控制）
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
+
 	// 异步执行关闭函数（避免阻塞信号处理）
 	shutdownErrChan := make(chan error, 1)
 	go func() {
@@ -232,7 +232,7 @@ func WaitForShutdown(collector string, shutdownFunc func() error) {
 		shutdownErrChan <- shutdownFunc() // 执行自定义关闭逻辑（如HTTP服务Shutdown）
 		close(shutdownErrChan)
 	}()
-	
+
 	// 等待关闭完成或超时
 	select {
 	case err := <-shutdownErrChan:
@@ -244,13 +244,13 @@ func WaitForShutdown(collector string, shutdownFunc func() error) {
 	case <-ctx.Done():
 		logger.Error("graceful shutdown timed out", "", zap.Error(ctx.Err()))
 	}
-	
+
 	// 日志同步：确保缓存日志写入输出（忽略stdout无效句柄错误）
 	if err := logger.Sync(); err != nil {
 		if err.Error() != "sync /dev/stdout: bad file descriptor" {
 			logger.Warn("logger sync failed", "", zap.Error(err))
 		}
 	}
-	
+
 	logger.Info("shutdown workflow finished, program exiting", "")
 }
