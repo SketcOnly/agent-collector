@@ -16,6 +16,7 @@ package logger
 
 import (
 	"fmt"
+	"github.com/agent-collector/pkg/config"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -27,8 +28,6 @@ import (
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-
-	"github.com/agent-collector/config"
 )
 
 // Logger 是zap.Logger的类型别名，简化外部包对日志核心类型的引用
@@ -79,9 +78,9 @@ func Init(cfg config.ZapLogConfig) error {
 
 		// 初始化日志轮转器：按天轮转，保留7天日志
 		writer, wErr := rotatelogs.New(
-			filepath.Join(cfg.Path, "agent-%Y%m%d-000000.log"), // 日志文件名格式（按日期命名）
-			rotatelogs.WithMaxAge(7*24*time.Hour),              // 日志最大保留时间（7天）
-			rotatelogs.WithRotationTime(24*time.Hour),          // 轮转周期（24小时，即每天00:00轮转）
+			filepath.Join(cfg.Path, "monitor-%Y%m%d-000000.log"), // 日志文件名格式（按日期命名）
+			rotatelogs.WithMaxAge(7*24*time.Hour),                // 日志最大保留时间（7天）
+			rotatelogs.WithRotationTime(24*time.Hour),            // 轮转周期（24小时，即每天00:00轮转）
 		)
 		if wErr != nil {
 			err = wErr

@@ -50,7 +50,7 @@ release: clean
 # ------------------------------
 # Docker image
 # ------------------------------
-docker: build
+docker: ../build
 	@echo "🐳 Building Docker image $(DOCKER_IMAGE)..."
 	docker build -t $(DOCKER_IMAGE) .
 	@echo "✅ Docker image ready: $(DOCKER_IMAGE)"
@@ -58,7 +58,7 @@ docker: build
 # ------------------------------
 # Run locally
 # ------------------------------
-run: build
+run: ../build
 	@echo "🏃 Running $(APP)..."
 	./$(BUILD_DIR)/$(APP)
 

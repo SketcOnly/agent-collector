@@ -1,13 +1,13 @@
-package agent
+package monitor
 
 import (
 	"context"
 	"fmt"
-	"github.com/agent-collector/config"
-	"github.com/agent-collector/logger"
-	"github.com/agent-collector/registers"
-	"github.com/agent-collector/server"
-	"github.com/agent-collector/util"
+	"github.com/agent-collector/cmd/server"
+	"github.com/agent-collector/pkg/config"
+	"github.com/agent-collector/pkg/logger"
+	"github.com/agent-collector/pkg/registers"
+	"github.com/agent-collector/pkg/util"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 	"os"
@@ -21,7 +21,7 @@ func Run(c *cli.Context) error {
 	}
 	
 	// 2，初始化banner
-	projectName := "agent-collector"
+	projectName := "monitor-collector"
 	bannerColor := "ColorBlue" // 整体统一颜色
 	// PrintBanner(projectName, bannerColor)
 	util.PrintBanner(projectName, bannerColor)

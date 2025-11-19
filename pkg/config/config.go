@@ -174,5 +174,5 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("collector.cpu.collect_per_core", true)
 	v.SetDefault("log.level", "info")
 	v.SetDefault("log.format", "json")
-	v.SetDefault("log.path", "./logs/agent.log")
+	v.SetDefault("log.path", "./logs/monitor.log")
 }

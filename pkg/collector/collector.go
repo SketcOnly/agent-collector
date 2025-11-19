@@ -3,19 +3,11 @@ package collector
 import (
 	"context"
 	"fmt"
+	"github.com/agent-collector/pkg/logger"
 
-	"github.com/agent-collector/logger"
 	"go.uber.org/zap"
 	"time"
 )
-
-// Collector 采集器核心接口（所有采集器必须实现）
-type Collector interface {
-	Name() string                      // 采集器名称（唯一标识）
-	Init() error                       // 初始化（注册指标、预检查资源）
-	Collect(ctx context.Context) error // 采集数据（更新指标）
-	Close() error                      // 关闭（释放资源）
-}
 
 // Registry 采集器注册器（严格实现 Agent 接口）
 type Registry struct {
@@ -68,7 +60,7 @@ func (r *Registry) Start(ctx context.Context) {
 
 	// 启动定时器
 	r.ticker = time.NewTicker(r.interval)
-	logger.Info("collector agent started", "collector-registry",
+	logger.Info("collector monitor started", "collector-registry",
 		zap.Duration("interval", r.interval),
 		zap.Int("registered-collectors-count", len(r.collectors)))
 
@@ -85,11 +77,11 @@ func (r *Registry) Start(ctx context.Context) {
 				_ = r.CollectAll(ctx) // 单采集器失败不影响整体
 			case <-ctx.Done(): // 响应外部关闭信号（如服务停止）
 				r.ticker.Stop()
-				logger.Info("collector agent stopped by external context", "collector-registry", zap.Error(ctx.Err()))
+				logger.Info("collector monitor stopped by external context", "collector-registry", zap.Error(ctx.Err()))
 				return
 			case <-r.ctx.Done(): // 响应内部关闭信号（如主动调用 Shutdown）
 				r.ticker.Stop()
-				logger.Info("collector agent stopped by internal shutdown", "collector-registry")
+				logger.Info("collector monitor stopped by internal shutdown", "collector-registry")
 				return
 			}
 		}
@@ -98,7 +90,7 @@ func (r *Registry) Start(ctx context.Context) {
 
 // Shutdown 优雅关闭采集器（释放资源）
 func (r *Registry) Shutdown(ctx context.Context) error {
-	logger.Info("starting to shutdown collector agent", "collector-registry")
+	logger.Info("starting to shutdown collector monitor", "collector-registry")
 
 	// 停止定时器（双重保险）
 	if r.ticker != nil {

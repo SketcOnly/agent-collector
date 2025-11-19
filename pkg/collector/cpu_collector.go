@@ -3,15 +3,14 @@ package collector
 import (
 	"context"
 	"fmt"
-	"github.com/agent-collector/logger"
+	"github.com/agent-collector/pkg/logger"
+	"github.com/agent-collector/pkg/metrics"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/shirou/gopsutil/v3/cpu"
 	cload "github.com/shirou/gopsutil/v3/load"
 	"go.uber.org/zap"
-
-	"github.com/agent-collector/internal/metrics"
 )
 
 // CPUCollector CPU采集器（实现Collector接口）
@@ -31,7 +30,7 @@ type CPUCollectorConfig struct {
 // NewCPUCollector 创建CPU采集器
 func NewCPUCollector(
 	cfg CPUCollectorConfig,
-	metricFactory metrics.MetricFactory,
+	metricFactory MetricFactory,
 ) *CPUCollector {
 	return &CPUCollector{
 		name: "cpu-collector",

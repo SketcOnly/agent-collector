@@ -5,7 +5,7 @@ package server
 import (
 	"context"
 	"errors"
-	"github.com/agent-collector/logger"
+	"github.com/agent-collector/pkg/logger"
 	"net/http"
 	"os"
 	"os/signal"

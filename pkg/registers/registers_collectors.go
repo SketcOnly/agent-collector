@@ -2,27 +2,27 @@ package registers
 
 import (
 	"fmt"
-	"github.com/agent-collector/config"
-	"github.com/agent-collector/internal/collector"
-	"github.com/agent-collector/internal/metrics"
-	"github.com/agent-collector/logger"
+	collector2 "github.com/agent-collector/pkg/collector"
+	"github.com/agent-collector/pkg/config"
+	"github.com/agent-collector/pkg/logger"
+	"github.com/agent-collector/pkg/metrics"
 	"go.uber.org/zap"
 )
 
 // RegisterCollectors  采集器注册统一入口（扩展仅需修改此函数）核心：开关控制 + 标识选择）
-func RegisterCollectors(agent collector.Agent, cfg *config.Config, metricFactory metrics.MetricFactory,
-) (targetCollector collector.Collector, err error) {
+func RegisterCollectors(agent collector2.Agent, cfg *config.Config, metricFactory metrics.MetricFactory,
+) (targetCollector collector2.Collector, err error) {
 	// 存储所有已启用+已注册的采集器（用于后续校验和日志）
 	enabledCollectors := make([]string, 0)
 
 	// 1. CPU采集器：仅当 EnableCPU 为 true 时注册（优先级最高）
 	if cfg.Collector.EnableCPU {
 		// 构建配置（从全局配置读取，与开关强绑定）
-		cpuCfg := collector.CPUCollectorConfig{
+		cpuCfg := collector2.CPUCollectorConfig{
 			CollectPerCore: cfg.Collector.CPU.CPUCollectorConfig,
 		}
 		// 创建采集器实例（实现 Collector 接口）
-		cpuCollector := collector.NewCPUCollector(cpuCfg, metricFactory)
+		cpuCollector := collector2.NewCPUCollector(cpuCfg, metricFactory)
 		// 注册到 Agent
 		agent.Register(cpuCollector)
 		// 标记为核心标识采集器（优先级1）
