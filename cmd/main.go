@@ -1,43 +1,38 @@
 package main
 
 import (
-	"fmt"
-	"github.com/agent-collector/cmd/monitor"
-	"github.com/urfave/cli/v2"
-	"go.uber.org/zap"
-	"os"
+	"github.com/agent-collector/cmd/agent"
 )
 
 func main() {
-	app := &cli.App{
-		Name:  "monitor-collector",
-		Usage: "Production-grade system metrics collector (CPU/disk/network) with Prometheus",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:  "config",
-				Value: "config.yaml",
-				Usage: "path to config file (e.g. --config=./conf/config.yaml)",
-			},
-		},
-		Action: monitor.Run,
-	}
+	//app := &cli.App{
+	//	Name:  "monitor-collector",
+	//	Usage: "Production-grade system metrics collector (CPU/disk/network) with Prometheus",
+	//	Flags: []cli.Flag{
+	//		&cli.StringFlag{
+	//			Name:  "config",
+	//			Value: "config.yaml",
+	//			Usage: "path to config file (e.g. --config=./conf/config.yaml)",
+	//		},
+	//	},
+	//	Action: monitor.Run,
+	//}
+
+	agent.Execute()
 	//	初始化默认日志(用于启动阶段错误输出)
-	if err := monitor.InitDefaultLogger(); err != nil {
-		_, err := fmt.Fprintf(os.Stderr, "init default logger error: %v\n", err)
-		if err != nil {
-			return
-		}
-		os.Exit(1)
-	}
-	defer func(l *zap.Logger) {
-		err := l.Sync()
-		if err != nil {
-			return
-		}
-	}(zap.L())
-	if err := app.Run(os.Args); err != nil {
-		zap.L().Fatal("run error", zap.Error(err))
-	}
+	//if err := server.InitDefaultLogger(); err != nil {
+	//	_, err := fmt.Fprintf(os.Stderr, "init default logger error: %v\n", err)
+	//	if err != nil {
+	//		return
+	//	}
+	//	os.Exit(1)
+	//}
+	//defer func(l *zap.Logger) {
+	//	err := l.Sync()
+	//	if err != nil {
+	//		return
+	//	}
+	//}(zap.L())
 
 }
 

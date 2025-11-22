@@ -242,3 +242,33 @@ agent-collector/
 ├── go.sum
 └── README.md
 ```
+
+## 核心模块与职责
+|模块|核心职责|依赖关系|扩展点|
+|-|-|-|-|
+|数据源（DataSource）|	读取原始数据（/proc、/sys、Cgroup、Docker API）|	无（仅被收集器依赖）	|新增 Windows WMI、CRI-O API 等|
+|收集器（Collector）|	解析原始数据 → 转换为标准指标 → 注册到 Registry	|依赖对应数据源 + 指标注册接口	|新增 K8s 收集器、数据库收集器等|
+|指标注册（MetricsRegistry）|	接收标准指标 → 按 Prometheus 格式存储	|无（仅被收集器依赖，被暴露器使用）	|替换为 InfluxDB/Elastic 指标存储|
+|暴露器（Exporter）	|将 Registry 中的指标通过 HTTP 暴露（/metrics）	|依赖指标注册接口	|新增 HTTPS 暴露、GRPC 暴露等|
+
+
+## 接口设计思路（遵循 ISP + 可扩展）
+### 数据源层接口：按 “数据源类型” 拆分小接口
+
+不同数据源的读取逻辑差异极大（比如读文件 vs 调用 HTTP API），遵循 ISP 拆分为多个单一职责的小接口，收集器按需依赖：
+
++ ProcDataSource：读取 Linux /proc 目录数据（如 CPU、内存信息） 
++ SysDataSource：读取 Linux /sys 目录数据（如磁盘、网络信息） 
++ CgroupDataSource：读取 Cgroup v1/v2 数据（容器资源限制） 
++ ContainerRuntimeAPI：调用容器运行时 API（Docker/containerd/CRI-O）
+
+每个接口仅定义 “读取数据” 的核心方法，不关心后续如何解析。 
+
+### 收集器层接口：抽象 “采集 + 注册” 行为
+所有收集器（主机 / 容器）的核心行为都是「采集数据 → 转成标准指标 → 注册」，抽象为 Collector 接口，具体收集器实现该接口并依赖对应数据源。 
+
+### 指标注册层接口：抽象 “指标存储” 行为
+屏蔽 Prometheus 具体实现，定义 MetricsRegistry 接口，支持注册 Prometheus 核心指标类型（Gauge gauge、Counter 计数器），后续可替换为其他存储。
+
+### 暴露器层接口：抽象 “指标暴露” 行为
+> 核心行为是「启动服务 → 暴露指标」，抽象为 MetricsExporter 接口，具体实现（如 HTTP）依赖指标注册接口。
