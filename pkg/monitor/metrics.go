@@ -19,8 +19,11 @@ type NetCollectorMetrics struct {
 
 // -------------------------- CPU采集器指标结构体 --------------------------
 type CPUCollectorMetrics struct {
-	UsageRatio *prometheus.GaugeVec
-	Load1      prometheus.Gauge
-	Load5      prometheus.Gauge
-	Load15     prometheus.Gauge
+	UsageRatio       *prometheus.GaugeVec
+	Load1            prometheus.Gauge
+	Load5            prometheus.Gauge
+	Load15           prometheus.Gauge
+	UsagePercent     *prometheus.GaugeVec
+	UsageModePercent *prometheus.GaugeVec
+	CPUInfo          *prometheus.GaugeVec
 }

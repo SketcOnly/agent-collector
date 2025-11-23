@@ -5,10 +5,11 @@ server:
   idle_timeout: "120s"
 
 monitor:
-  interval: "15s"
+  interval: "2s"
   collectors:
     proc:
       enable: true
+      collect_per_core: false
     sys:
       enable: true
       ignore_disks: ["/dev/sda", "/dev/sdb"]

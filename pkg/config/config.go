@@ -86,7 +86,7 @@ func NewDefaultConfig() *Config {
 			IdleTimeout:  60 * time.Second,
 		},
 		Monitor: MonitorConfig{
-			Interval: 10 * time.Second,
+			Interval: 1 * time.Second,
 			Collectors: CollectorConfig{
 				Proc: ProcDataSourceConfig{
 					Enable:         false,

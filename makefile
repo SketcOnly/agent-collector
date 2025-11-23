@@ -1,91 +1,82 @@
-APP := agent-collector
-PKG := ../cmd/
-VERSION := $(shell git describe --tags --always --dirty --match 'v*' 2>/dev/null || echo "v0.0.0")
-COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-DATE := $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
+# ==============================================================================
+# 简单版 Makefile - 编译 Go 程序并传输文件
+# ==============================================================================
 
-# 支持环境变量覆盖构建目录，增强灵活性
-BUILD_DIR ?= build
-DOCKER_IMAGE := agent-collector:$(VERSION)
+SHELL := /bin/zsh  # macOS 默认 shell
 
-# 优化链接参数，增加-buildid=none进一步减小二进制体积
-LDFLAGS := -s -w \
-	-buildid=none \
-	-X main.version=$(VERSION) \
-	-X main.commit=$(COMMIT) \
-	-X main.date=$(DATE)
+# ===================== 配置 =====================
+BUILD_DIR ?= build/
+BINARY_NAME ?= agent-collector-arm64
+GO_SRC_DIR ?= ./cmd/
+KEY_FILE ?= ~/.ssh/id_rsa
+DEST_DIR ?= /home/sketc
+FILE1 ?= $(BUILD_DIR)$(BINARY_NAME)
+FILE2 ?= configs/config.yaml
+FILES ?= $(FILE1) $(FILE2)
 
-# ------------------------------
-# 日志函数（保持原有风格，统一输出格式）
-# ------------------------------
-define log
-	echo "[$(shell date +'%Y-%m-%d %H:%M:%S')] $(1)"
+# 目标主机列表
+HOSTS ?= \
+  sketc@10.32.9.134
+
+# Go 架构配置
+GOOS ?= linux
+GOARCH ?= arm64
+GOFLAGS ?= -x -v -ldflags "-w -s"
+
+# ===================== 日志函数 =====================
+define log_info
+	@echo "[INFO] $$(date +%Y-%m-%dT%H:%M:%S%z) - $(1)"
 endef
 
-# ------------------------------
-# 声明伪目标，避免与文件重名导致目标失效
-# ------------------------------
-.PHONY: build clean release docker run
+define log_success
+	@echo "[SUCCESS] $$(date +%Y-%m-%dT%H:%M:%S%z) - $(1)"
+endef
 
-# ------------------------------
-# 构建本地二进制（增加错误检查，失败时终止）
-# ------------------------------
-build: | $(BUILD_DIR)
-	$(call log, "🚀 Building $(APP) with verbose output...")
-	CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(APP) $(PKG) || { \
-		$(call log, "❌ Build failed"); \
-		exit 1; \
-	}
-	$(call log, "✅ Build complete: $(BUILD_DIR)/$(APP)")
+define log_error
+	@echo "[FAILED] $$(date +%Y-%m-%dT%H:%M:%S%z) - $(1)"
+endef
 
-# ------------------------------
-# 清理产物（确保目录下次构建可复用）
-# ------------------------------
+# ===================== 1. 编译 =====================
+.PHONY: compile
+compile:
+	$(call log_info, "START 编译 Go 程序 GOOS=$(GOOS), GOARCH=$(GOARCH)")
+	@mkdir -p $(BUILD_DIR)
+	@echo "Running: GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(GOFLAGS) -o $(FILE1) $(GO_SRC_DIR)main.go"
+	@cd $(GO_SRC_DIR) && GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(GOFLAGS) -o ../$(FILE1) main.go || { \
+		$(call log_error, "Go 编译失败"); exit 1; }
+	$(call log_success, "编译完成 $(FILE1)")
+
+# ===================== 2. SCP 多文件传输 =====================
+define scp_host
+user_ip=$(1); port=$(2); \
+$(call log_info, "TRANSFER 到 $$user_ip 端口 $$port 开始"); \
+scp -i $(KEY_FILE) -P $$port -o StrictHostKeyChecking=no $(FILES) $$user_ip:$(DEST_DIR) || { \
+	$(call log_error, "传输到 $$user_ip 失败"); exit 1; }; \
+$(call log_success, "传输到 $$user_ip 完成")
+endef
+
+.PHONY: deploy
+deploy: compile
+	@for f in $(FILES); do \
+		if [ ! -f $$f ]; then \
+			$(call log_error, "文件不存在: $$f"); exit 1; \
+		fi; \
+	done
+	$(call log_info, "START 传输 $(words $(HOSTS)) 台主机")
+	@for host in $(HOSTS); do \
+		user_ip=$${host%%:*}; port=$${host##*:}; \
+		if [ "$$user_ip" = "$$port" ]; then port=22; fi; \
+		$(call scp_host,$$user_ip,$$port); \
+	done
+	$(call log_success, "所有主机传输完成")
+
+# ===================== 3. 总目标 =====================
+.PHONY: all
+all: compile deploy
+
+# ===================== 4. 清理 =====================
+.PHONY: clean
 clean:
-	$(call log, "🧹 Cleaning build artifacts...")
-	rm -rf $(BUILD_DIR)
-	$(call log, "✅ Clean complete")
-
-# ------------------------------
-# 发布Linux ARM64版本（增加错误检查，统一日志）
-# ------------------------------
-release: clean
-	$(call log, "🌍 Building release for Linux ARM64...")
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 \
-	go build -x -trimpath -ldflags "$(LDFLAGS)" -o $(BUILD_DIR)/$(APP)-linux-arm64 $(PKG) || { \
-		$(call log, "❌ Cross-compile failed"); \
-		exit 1; \
-	}
-	$(call log, "🔑 Generating checksum...")
-	sha256sum $(BUILD_DIR)/$(APP)-linux-arm64 > $(BUILD_DIR)/checksums.txt || { \
-		$(call log, "❌ Checksum generation failed"); \
-		exit 1; \
-	}
-	$(call log, "✅ Release build complete: $(BUILD_DIR)/$(APP)-linux-arm64")
-
-# ------------------------------
-# 构建Docker镜像（修复依赖路径，统一日志）
-# ------------------------------
-docker: $(BUILD_DIR)
-	$(call log, "🐳 Building Docker image $(DOCKER_IMAGE)...")
-	docker build -t $(DOCKER_IMAGE) . || { \
-		$(call log, "❌ Docker build failed"); \
-		exit 1; \
-	}
-	$(call log, "✅ Docker image ready: $(DOCKER_IMAGE)")
-
-# ------------------------------
-# 本地运行（修复依赖路径，统一日志）
-# ------------------------------
-run: $(BUILD_DIR)
-	$(call log, "🏃 Running $(APP)...")
-	./$(BUILD_DIR)/$(APP) || { \
-		$(call log, "❌ Runtime failed"); \
-		exit 1; \
-	}
-
-# ------------------------------
-# 创建构建目录（确保存在）
-# ------------------------------
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+	$(call log_info, "START 清理 build 目录")
+	@rm -rf $(BUILD_DIR)
+	$(call log_success, "清理完成")
