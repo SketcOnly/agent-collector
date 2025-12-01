@@ -63,9 +63,10 @@ func InitLogger(cfg *config.ZapLogConfig) (*zap.Logger, error) {
 
 		// 初始化日志轮转器：按天轮转，保留7天日志
 		writer, wErr := rotatelogs.New(
-			filepath.Join(cfg.Path, "monitor-%Y%m%d-000000.log"), // 日志文件名格式（按日期命名）
-			rotatelogs.WithMaxAge(7*24*time.Hour),                // 日志最大保留时间（7天）
-			rotatelogs.WithRotationTime(24*time.Hour),            // 轮转周期（24小时，即每天00:00轮转）
+			filepath.Join(cfg.Path, "metrics-%Y%m%d-000000.log"),          // 日志文件名格式（按日期命名）
+			rotatelogs.WithMaxAge(time.Duration(cfg.MaxAge)*24*time.Hour), // 日志最大保留时间（7天）
+			rotatelogs.WithRotationTime(24*time.Hour),                     // 轮转周期（24小时，即每天00:00轮转）
+			rotatelogs.WithRotationSize(int64(cfg.MaxSize)*1024*1024),
 		)
 		if wErr != nil {
 			err = wErr
@@ -107,29 +108,49 @@ func InitLogger(cfg *config.ZapLogConfig) (*zap.Logger, error) {
 			enc.AppendString(levelStr)
 		}
 
-		// 控制台编码器配置（开发环境友好，格式化输出）
-		consoleEncoderCfg := zap.NewDevelopmentEncoderConfig()
-		consoleEncoderCfg.ConsoleSeparator = " "                // 字段间分隔符（空格）
-		consoleEncoderCfg.EncodeLevel = coloredLevelEncoder     // 启用彩色级别编码
-		consoleEncoderCfg.EncodeTime = customTimeEncoderConsole // 启用彩色时间编码
-		// 精简调用者信息：只保留"父目录/文件名:行号"（如logger/logger.go:123）
-		consoleEncoderCfg.EncodeCaller = func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-			rel := filepath.Join(filepath.Base(filepath.Dir(c.File)), filepath.Base(c.File))
-			enc.AppendString(fmt.Sprintf("%s:%d", rel, c.Line))
+		// 1. 控制台编码器（始终带彩色，格式由配置决定：console 是格式化文本，json 是JSON）
+		var consoleEncoder zapcore.Encoder
+		if cfg.Format == "console" {
+			consoleEncoderCfg := zap.NewDevelopmentEncoderConfig()
+			consoleEncoderCfg.ConsoleSeparator = " "
+			consoleEncoderCfg.EncodeLevel = coloredLevelEncoder
+			consoleEncoderCfg.EncodeTime = customTimeEncoderConsole
+			consoleEncoderCfg.EncodeCaller = func(c zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
+				rel := filepath.Join(filepath.Base(filepath.Dir(c.File)), filepath.Base(c.File))
+				enc.AppendString(fmt.Sprintf("%s:%d", rel, c.Line))
+			}
+			consoleEncoder = zapcore.NewConsoleEncoder(consoleEncoderCfg)
+		} else { // logFormat == "json"
+			consoleJsonCfg := zap.NewProductionEncoderConfig()
+			consoleJsonCfg.TimeKey = "timestamp"
+			consoleJsonCfg.EncodeTime = customTimeEncoderJSON // 控制台JSON也加彩色时间（可选，不想加就用 customTimeEncoder）
+			consoleJsonCfg.EncodeLevel = zapcore.LowercaseLevelEncoder
+			consoleJsonCfg.EncodeCaller = zapcore.ShortCallerEncoder // JSON格式用短调用者信息
+			consoleEncoder = zapcore.NewJSONEncoder(consoleJsonCfg)
 		}
-		consoleEncoder := zapcore.NewConsoleEncoder(consoleEncoderCfg) // 控制台输出编码器
 
-		// JSON编码器配置（生产环境友好，结构化存储）
-		jsonCfg := zap.NewProductionEncoderConfig()
-		jsonCfg.TimeKey = "timestamp"                       // JSON中时间字段的key（默认是ts，改为更直观的timestamp）
-		jsonCfg.EncodeTime = customTimeEncoderJSON          // 时间格式统一
-		jsonCfg.EncodeLevel = zapcore.LowercaseLevelEncoder // 级别字段小写（如debug/info）
-		jsonEncoder := zapcore.NewJSONEncoder(jsonCfg)      // 文件存储编码器
+		// 2. 文件编码器（无颜色，格式由配置决定）
+		var fileEncoder zapcore.Encoder
+		if cfg.Format == "console" {
+			fileConsoleCfg := zap.NewDevelopmentEncoderConfig()
+			fileConsoleCfg.ConsoleSeparator = " "
+			fileConsoleCfg.EncodeLevel = zapcore.CapitalLevelEncoder // 文件文本用大写级别（如 DBG/INF）
+			fileConsoleCfg.EncodeTime = customTimeEncoderConsole
+			fileConsoleCfg.EncodeCaller = zapcore.ShortCallerEncoder
+			fileEncoder = zapcore.NewConsoleEncoder(fileConsoleCfg)
+		} else { // logFormat == "json"
+			fileJsonCfg := zap.NewProductionEncoderConfig()
+			fileJsonCfg.TimeKey = "timestamp"
+			fileJsonCfg.EncodeTime = customTimeEncoderJSON
+			fileJsonCfg.EncodeLevel = zapcore.LowercaseLevelEncoder
+			fileJsonCfg.EncodeCaller = zapcore.ShortCallerEncoder
+			fileEncoder = zapcore.NewJSONEncoder(fileJsonCfg)
+		}
 
 		// 创建日志核心：同时输出到控制台和文件，按配置级别过滤
 		core := zapcore.NewTee(
 			zapcore.NewCore(consoleEncoder, zapcore.AddSync(os.Stdout), level), // 控制台输出
-			zapcore.NewCore(jsonEncoder, zapcore.AddSync(writer), level),       // 文件输出（轮转）
+			zapcore.NewCore(fileEncoder, zapcore.AddSync(writer), level),       // 文件输出（轮转）
 		)
 
 		// 初始化基础日志实例：

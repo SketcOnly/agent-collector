@@ -5,6 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/cobra"
+	"os"
 	"strings"
 	"time"
 
@@ -16,7 +17,7 @@ var valid = validator.New()
 // Config 全局配置结构体（聚合所有核心模块）
 type Config struct {
 	Server  ServerConfig  `yaml:"server" mapstructure:"server" comment:"HTTP服务配置"` // 简化yaml键名（原 server_config → server，更简洁）
-	Monitor MonitorConfig `yaml:"monitor" mapstructure:"monitor" comment:"监控采集配置"` // 简化yaml键名（原 monitor_config → monitor）
+	Monitor MonitorConfig `yaml:"metrics" mapstructure:"metrics" comment:"监控采集配置"` // 简化yaml键名（原 monitor_config → metrics）
 	Log     ZapLogConfig  `yaml:"log" mapstructure:"log" comment:"日志配置"`           // 简化yaml键名（原 logs_config → log）
 }
 
@@ -44,8 +45,9 @@ type CollectorConfig struct {
 
 // ProcDataSourceConfig /proc 数据源配置（去掉冗余Enable前缀）
 type ProcDataSourceConfig struct {
-	Enable         bool `yaml:"enable" mapstructure:"enable" env:"COLLECTOR_PROC_ENABLE" comment:"是否启用/proc数据源" default:"false"`
-	CollectPerCore bool `yaml:"collect_per_core" mapstructure:"collect_per_core" env:"COLLECTOR_PROC_PER_CORE" comment:"是否按每核心采集CPU指标" default:"false"`
+	Enable          bool          `yaml:"enable" mapstructure:"enable" env:"COLLECTOR_PROC_ENABLE" comment:"是否启用/proc数据源" default:"false"`
+	CollectPerCore  bool          `yaml:"collect_per_core" mapstructure:"collect_per_core" env:"COLLECTOR_PROC_PER_CORE" comment:"是否按每核心采集CPU指标" default:"false"`
+	LoadSampleCycle time.Duration `yaml:"load_sample_cycle" mapstructure:"load_sample_cycle" default:"1s"` // 负载采样周期
 }
 
 // SysDataSourceConfig /sys 数据源配置（修复env标签冲突）
@@ -80,17 +82,18 @@ type ZapLogConfig struct {
 func NewDefaultConfig() *Config {
 	return &Config{
 		Server: ServerConfig{
-			Addr:         "0.0.0.0:8080",
+			Addr:         "0.0.0.0:9091",
 			ReadTimeout:  30 * time.Second,
 			WriteTimeout: 30 * time.Second,
 			IdleTimeout:  60 * time.Second,
 		},
 		Monitor: MonitorConfig{
-			Interval: 1 * time.Second,
+			Interval: 2 * time.Second,
 			Collectors: CollectorConfig{
 				Proc: ProcDataSourceConfig{
-					Enable:         false,
-					CollectPerCore: true,
+					Enable:          true,
+					CollectPerCore:  true,
+					LoadSampleCycle: 1 * time.Second,
 				},
 				Sys: SysDataSourceConfig{
 					Enable:         false,
@@ -106,7 +109,7 @@ func NewDefaultConfig() *Config {
 			},
 		},
 		Log: ZapLogConfig{
-			Level:     "info",
+			Level:     "debug",
 			Format:    "json",
 			Path:      "./logs",
 			MaxSize:   100,
@@ -130,10 +133,18 @@ func LoadConfigWithCli(cmd *cobra.Command) (*Config, error) {
 	// 2. 解析配置文件 (--config)
 	configFile, _ := cmd.Flags().GetString("config")
 	if configFile != "" {
-		v.SetConfigFile(configFile)
-		if err := v.ReadInConfig(); err != nil {
-			return nil, fmt.Errorf("read config file %s: %w", configFile, err)
+		if _, err := os.Stat(configFile); os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "The configuration file %s does not exist. The default configuration will be used (can be overridden via Flags/ENV)\n", configFile)
+
+		} else {
+			//	 文件存在 -> 正常加载（加载后会覆盖默认配置）
+			v.SetConfigFile(configFile)
+			if err := v.ReadInConfig(); err != nil {
+				return nil, fmt.Errorf("failed to read the configuration file %s: %w", configFile, err)
+			}
+			fmt.Fprintf(os.Stdout, "configuration file loaded successfully: %s\n", configFile)
 		}
+
 	}
 
 	// 3. 绑定环境变量 ENV -> Viper （HTTP_ADDR -> http.addr）
@@ -156,6 +167,7 @@ func LoadConfigWithCli(cmd *cobra.Command) (*Config, error) {
 		return nil, fmt.Errorf("new decoder: %w", err)
 	}
 
+	// 解码（此时: 默认配置 -> 文件配置(如有) -> Flags -> ENV的优先级）
 	if err := decoder.Decode(v.AllSettings()); err != nil {
 		return nil, fmt.Errorf("decode config: %w", err)
 	}

@@ -32,7 +32,7 @@ func (m *MonitorConfig) Validate() error {
 		return err
 	}
 	if m.Interval < time.Second || m.Interval > 3600*time.Second {
-		return fmt.Errorf("monitor,interval must be between 1 and 3600 seconds, got %s", m.Interval)
+		return fmt.Errorf("metrics,interval must be between 1 and 3600 seconds, got %s", m.Interval)
 	}
 	// CollectorConfig 加盐
 

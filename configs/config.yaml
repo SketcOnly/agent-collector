@@ -10,6 +10,7 @@ monitor:
     proc:
       enable: true
       collect_per_core: false
+      load_sample_cycle: "1s"
     sys:
       enable: true
       ignore_disks: ["/dev/sda", "/dev/sdb"]
@@ -21,7 +22,7 @@ monitor:
 
 log:
   level: "debug"
-  format: "console"
+  format: "json"
   path: "./app_logs"
   max_size: 200
   max_backup: 50

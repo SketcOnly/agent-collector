@@ -6,6 +6,7 @@ import (
 	"github.com/agent-collector/pkg/collector"
 	"github.com/agent-collector/pkg/config"
 	"github.com/agent-collector/pkg/logger"
+	"github.com/agent-collector/pkg/metrics"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
@@ -29,7 +30,7 @@ func InitPromRegistry(ctx context.Context, enableProcess bool, cfg *config.Confi
 	}
 
 	// 初始化工厂包装成自己的 Registry
-	metricFactory := collector.NewMetricFactory(collector.NewPromRegistry(promReg))
+	metricFactory := metrics.NewMetricFactory(metrics.NewPromRegistry(promReg))
 
 	//	// 4. 初始化采集器Agent（依赖接口）
 	agent := NewRegistry(cfg.Monitor.Interval)
@@ -65,7 +66,7 @@ func InitPromRegistry(ctx context.Context, enableProcess bool, cfg *config.Confi
 // 避免单一 targetCollector 覆盖问题。
 // 可扩展性强
 // 支持 /proc、/sys、Cgroup、Container，未来添加新的数据源只需要新增一条 module 配置即可。
-func RegisterCollectors(agent Agent, cfg *config.Config, metricFactory collector.MetricFactory) ([]Collector, error) {
+func RegisterCollectors(agent Agent, cfg *config.Config, metricFactory metrics.MetricFactory) ([]Collector, error) {
 
 	modu := []Module{
 		{

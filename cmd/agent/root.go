@@ -17,19 +17,20 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "monitor-collector",
+	Use:   "agent-collector",
 	Short: "Production-grade system metrics collector (CPU/disk/network) with Prometheus",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
+		// 加载配置
 		GlobalCfg, err = config.LoadConfigWithCli(cmd)
 		if err != nil {
-			// 统一输出错误到 stderr，不返回给 cobra
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			fmt.Fprintf(os.Stderr, "请检查配置文件路径或使用 -c 参数指定\n")
-			os.Exit(1)
+			// 如文件语法错误，权限不足，配置校验失败,必须报错退出
+			fmt.Fprintf(os.Stderr, "Configuration loading failed：%v\n", err)
+			fmt.Fprintf(os.Stderr, "Please check the syntax, permissions, or use - c to specify a valid path in the configuration file\n")
+			os.Exit(1) // 退出避免后续 nil 指针 panic
 		}
 		if err := runServer(cmd.Context(), GlobalCfg); err != nil {
-			fmt.Fprintf(os.Stderr, "服务启动失败: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Service startup failed: %v\n", err)
 			os.Exit(1)
 		}
 		//return runServer(cmd.Context(), GlobalCfg)
@@ -42,7 +43,7 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "configs/config.yaml", "配置文件路径")
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "configs/config.yaml", "configuration file path")
 	// 注册分组 flag
 	initServerFlags(rootCmd)
 	initMonitorFlags(rootCmd)
@@ -59,7 +60,7 @@ func runServer(ctx context.Context, cfg *config.Config) error {
 	//初始化日志
 	initLogger, err := logger.InitLogger(&cfg.Log)
 	if err != nil {
-		return fmt.Errorf("日志初始化失败: %w", err)
+		return fmt.Errorf("log initialization failed: %w", err)
 	}
 
 	// 修正：调用包级 Sync() 函数（不是实例方法），程序退出时刷盘

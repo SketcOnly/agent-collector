@@ -6,7 +6,7 @@ import (
 
 func main() {
 	//app := &cli.App{
-	//	Name:  "monitor-collector",
+	//	Name:  "metrics-collector",
 	//	Usage: "Production-grade system metrics collector (CPU/disk/network) with Prometheus",
 	//	Flags: []cli.Flag{
 	//		&cli.StringFlag{
@@ -15,7 +15,7 @@ func main() {
 	//			Usage: "path to config file (e.g. --config=./conf/config.yaml)",
 	//		},
 	//	},
-	//	Action: monitor.Run,
+	//	Action: metrics.Run,
 	//}
 
 	agent.Execute()
@@ -67,7 +67,7 @@ func main() {
 //
 //
 //
-//	log.Infof("monitor started successfully (HTTP: %s, collect interval: %v)", cfg.HTTP.Addr, cfg.Collector.Interval)
+//	log.Infof("metrics started successfully (HTTP: %s, collect interval: %v)", cfg.HTTP.Addr, cfg.Collector.Interval)
 //
 //	// 8. 监听退出信号（优雅关闭）
 //	signal.WaitForShutdown(zapLogger, func() error {
@@ -77,10 +77,10 @@ func main() {
 //			err1 = httpServer.Shutdown()
 //		}
 //
-//		err2 := monitor.Shutdown(context.Background())
+//		err2 := metrics.Shutdown(context.Background())
 //
 //		if err1 != nil || err2 != nil {
-//			return fmt.Errorf("shutdown errors: http=%v, monitor=%v", err1, err2)
+//			return fmt.Errorf("shutdown errors: http=%v, metrics=%v", err1, err2)
 //		}
 //		return nil
 //	})

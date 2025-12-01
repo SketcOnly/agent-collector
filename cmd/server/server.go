@@ -46,14 +46,14 @@ const defaultShutdownTimeout = 5 * time.Second
 func (m *customMux) Handle(pattern string, handler http.Handler) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	
+
 	for _, route := range m.routes {
 		if route == pattern {
 			m.ServeMux.Handle(pattern, handler)
 			return
 		}
 	}
-	
+
 	m.routes = append(m.routes, pattern)
 	m.ServeMux.Handle(pattern, handler)
 }
@@ -66,17 +66,17 @@ func (m *customMux) HandleFunc(pattern string, handler func(http.ResponseWriter,
 // NewHTTPServer 创建HTTP服务实例
 func NewHTTPServer(cfg *config.Config, logger *logger.Logger, registry *prometheus.Registry) *Server {
 	mux := &customMux{}
-	
+
 	srv := &Server{
 		cfg:      cfg,
 		logger:   logger,
 		registry: registry,
 		mux:      mux,
 	}
-	
+
 	// 注册核心端点
 	srv.registerEndpoints()
-	
+
 	srv.server = &http.Server{
 		Addr:         cfg.Server.Addr,
 		Handler:      srv.logMiddleware(mux),
@@ -84,7 +84,7 @@ func NewHTTPServer(cfg *config.Config, logger *logger.Logger, registry *promethe
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  15 * time.Second,
 	}
-	
+
 	return srv
 }
 
@@ -93,9 +93,9 @@ func (s *Server) logMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
-		
+
 		next.ServeHTTP(sw, r)
-		
+
 		s.logger.Info(
 			"HTTP request",
 			zap.String("method", r.Method),
@@ -113,7 +113,7 @@ func (s *Server) registerEndpoints() {
 	s.mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
-		
+
 		html := fmt.Sprintf(`
 		<!DOCTYPE html>
 		<html lang="zh-CN">
@@ -139,12 +139,12 @@ func (s *Server) registerEndpoints() {
 		`)
 		_, _ = w.Write([]byte(html))
 	})
-	
+
 	// /metrics 端点
 	s.mux.Handle("/metrics", promhttp.HandlerFor(s.registry, promhttp.HandlerOpts{
 		ErrorLog: zap.NewStdLog(log.GetGlobalLogger()),
 	}))
-	
+
 	// /health 端点
 	s.mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -164,6 +164,8 @@ func (s *Server) Start() error {
 		"starting HTTP server",
 		zap.String("listen_addr", s.cfg.Server.Addr),
 		zap.Strings("handle_funcs", s.mux.routes),
+		zap.String("采集间隔", s.cfg.Monitor.Interval.String()),
+		zap.String("log_path", s.cfg.Log.Path), zap.String("log_level", s.cfg.Log.Level), zap.String("log_format", s.cfg.Log.Format),
 	)
 	go func() {
 		if err := s.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
@@ -177,7 +179,7 @@ func (s *Server) Start() error {
 func (s *Server) Shutdown() error {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultShutdownTimeout)
 	defer cancel()
-	
+
 	if err := s.server.Shutdown(ctx); err != nil {
 		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			s.logger.Warn("shutdown timeout exceeded")
@@ -186,7 +188,7 @@ func (s *Server) Shutdown() error {
 		s.logger.Error("HTTP server shutdown failed", zap.Error(err))
 		return err
 	}
-	
+
 	s.logger.Info("HTTP server shutdown successfully")
 	return nil
 }
@@ -197,25 +199,25 @@ func WaitForShutdown(shutdownFunc func() error) {
 		log.Error("shutdownFunc is nil, cannot execute shutdown")
 		return
 	}
-	
+
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	defer signal.Stop(sigChan)
-	
+
 	log.Info("service running, waiting for SIGINT/SIGTERM...")
-	
+
 	sig := <-sigChan
 	log.Info("received shutdown signal", zap.String("signal", sig.String()))
-	
+
 	if err := shutdownFunc(); err != nil {
 		log.Error("graceful shutdown failed", zap.Error(err))
 	} else {
 		log.Info("graceful shutdown completed successfully")
 	}
-	
+
 	if err := log.Sync(); err != nil && err.Error() != "sync /dev/stdout: bad file descriptor" {
 		log.Warn("logger sync failed", zap.Error(err))
 	}
-	
+
 	log.Info("shutdown workflow finished, exiting program")
 }

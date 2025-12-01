@@ -6,15 +6,15 @@ import (
 	"fmt"
 	"github.com/agent-collector/pkg/config"
 	"github.com/agent-collector/pkg/logger"
-	"github.com/agent-collector/pkg/monitor"
+	"github.com/agent-collector/pkg/metrics"
+	"github.com/shirou/gopsutil/v3/cpu"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/shirou/gopsutil/v3/cpu"
-	cload "github.com/shirou/gopsutil/v3/load"
+
 	"go.uber.org/zap"
 )
 
@@ -34,9 +34,12 @@ type CPUTimes struct {
 type CPUCollector struct {
 	name            string
 	cfg             *config.CollectorConfig
-	metrics         monitor.CPUCollectorMetrics
+	metrics         metrics.CPUCollectorMetrics
 	collectErrors   *prometheus.CounterVec
 	collectDuration *prometheus.HistogramVec
+
+	loadCalculator *LoadCalculator // 负载计算器实例
+	stopLoadSample func()          // 负载采样停止函数
 
 	cpuInfoInitialized bool                // 用来防止重复采集 CPU 静态信息，提升程序效率。
 	lastCPUTimes       map[string]CPUTimes // 存储上一次的CPU时间，用于计算使用率
@@ -52,7 +55,13 @@ type CPUCollector struct {
 }
 
 // NewCPUCollector 创建CPU采集器
-func NewCPUCollector(cfg *config.CollectorConfig, metricFactory MetricFactory) *CPUCollector {
+func NewCPUCollector(cfg *config.CollectorConfig, metricFactory metrics.MetricFactory) *CPUCollector {
+	calculator, err := NewLoadCalculator(cfg.Proc.LoadSampleCycle)
+	if err != nil {
+		logger.Error("failed to create load calculator", zap.Error(err))
+		//	非致命错误,继续创建采集器
+		calculator = nil
+	}
 	return &CPUCollector{
 		name:          "cpu-collector",
 		cfg:           cfg,
@@ -64,7 +73,7 @@ func NewCPUCollector(cfg *config.CollectorConfig, metricFactory MetricFactory) *
 		hasCPUCores:   false,
 		physicalCores: 0,
 		finalCores:    0,
-		metrics: monitor.CPUCollectorMetrics{
+		metrics: metrics.CPUCollectorMetrics{
 			UsageRatio:       metricFactory.NewCPUUsageRatio(),
 			Load1:            metricFactory.NewCPULoad1(),
 			Load5:            metricFactory.NewCPULoad5(),
@@ -75,6 +84,7 @@ func NewCPUCollector(cfg *config.CollectorConfig, metricFactory MetricFactory) *
 		},
 		collectErrors:   metricFactory.NewAgentCollectErrorsTotal(),
 		collectDuration: metricFactory.NewAgentCollectDurationSeconds(),
+		loadCalculator:  calculator, // 注入负载计算器
 	}
 }
 
@@ -87,6 +97,16 @@ func (c *CPUCollector) Init() error {
 	if _, err := cpu.Counts(false); err != nil {
 		logger.Error("failed to get CPU counts", zap.Error(err))
 		return err
+	}
+	// 2. 启动负载计算器（如果创建成功）
+	if c.loadCalculator != nil {
+		if err := c.loadCalculator.StartLoad(); err != nil {
+			logger.Error("failed to start load calculator", zap.Error(err))
+			//	启动失败，标记为不可用
+			c.loadCalculator = nil
+		}
+	} else {
+		logger.Warn("load calculator is not initialized, skip load collection")
 	}
 	return nil
 }
@@ -111,26 +131,28 @@ func (c *CPUCollector) Collect(ctx context.Context) error {
 	// 2. 更新使用率指标
 	if c.cfg.Proc.CollectPerCore {
 		for i, usage := range usageList {
-			c.metrics.UsageRatio.WithLabelValues(fmt.Sprintf("cpu%d", i)).Set(usage / 100)
+			c.metrics.UsageRatio.WithLabelValues(fmt.Sprintf("cpu-%d", i)).Set(usage / 100)
 		}
 	} else {
 		c.metrics.UsageRatio.WithLabelValues("total").Set(usageList[0] / 100)
 	}
 
 	// 3. 采集CPU负载
-	load, err := cload.Avg()
-	if err != nil {
-		logger.Warn("failed to get CPU load", zap.Error(err))
+	if c.loadCalculator != nil {
+		load1, load5, load15, initialized := c.loadCalculator.GetLoads()
+		if initialized {
+			// 更新CPU负载指标
+			c.metrics.Load1.Set(load1)
+			c.metrics.Load5.Set(load5)
+			c.metrics.Load15.Set(load15)
+			logger.Debug("load calculator success", zap.Float64("load1", load1), zap.Float64("load5", load5), zap.Float64("load15", load15))
+		} else {
+			logger.Debug("load calculator is not initialized, skip load calculator")
+		}
+	} else {
+		logger.Warn("load collection is disabled (load calculator not available)")
 		c.collectErrors.WithLabelValues(c.name).Inc()
-		return nil
 	}
-	// 更新CPU负载指标
-	c.metrics.Load1.Set(load.Load1)
-	c.metrics.Load5.Set(load.Load5)
-	c.metrics.Load15.Set(load.Load15)
-	logger.Debug("collected CPU metrics", zap.Float64("load1", load.Load1))
-	logger.Debug("collected CPU metrics", zap.Float64("load5", load.Load5))
-	logger.Debug("collected CPU metrics", zap.Float64("load15", load.Load15))
 
 	// UsagePercent/UsageModePercent
 	if err = c.collectCPUFromProc(); err != nil {
@@ -248,10 +270,10 @@ func (c *CPUCollector) collectCPUFromProc() error {
 		// 调试日志：输出核心指标（仅保留关键信息，避免日志冗余）
 		logger.Debug("collected CPU mode usage",
 			zap.String("cpu", cpu_id),
-			zap.Float64("user%", modeMetrics["user"]/deltaTotal*100),
-			zap.Float64("system%", modeMetrics["system"]/deltaTotal*100),
-			zap.Float64("idle%", modeMetrics["idle"]/deltaTotal*100),
-			zap.Float64("total%", totalUsagePercent))
+			zap.Float64("user", modeMetrics["user"]/deltaTotal*100),
+			zap.Float64("system", modeMetrics["system"]/deltaTotal*100),
+			zap.Float64("idle", modeMetrics["idle"]/deltaTotal*100),
+			zap.Float64("total", totalUsagePercent))
 
 		// 保存当前时间，作为下次采集的历史基准
 		c.lastCPUTimes[cpu_id] = times
@@ -329,5 +351,9 @@ func (c *CPUCollector) collectCPUInfoFromProc() error {
 
 }
 func (c *CPUCollector) Close() error {
+	if c.stopLoadSample != nil {
+		c.stopLoadSample()
+		logger.Info("load calculator stopped successfully")
+	}
 	return nil
 }

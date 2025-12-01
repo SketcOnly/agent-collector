@@ -64,7 +64,7 @@ func (r *AgentImpl) Start(ctx context.Context) {
 
 	// 启动定时器
 	r.ticker = time.NewTicker(r.interval)
-	logger.Debug("collector monitor started", zap.String("name", "collector-registry"),
+	logger.Debug("collector metrics started", zap.String("name", "collector-registry"),
 		zap.Duration("interval", r.interval),
 		zap.Int("registered-collectors-count", len(r.collectors)))
 
@@ -81,11 +81,11 @@ func (r *AgentImpl) Start(ctx context.Context) {
 				_ = r.CollectAll(ctx) // 单采集器失败不影响整体
 			case <-ctx.Done(): // 响应外部关闭信号（如服务停止）
 				r.ticker.Stop()
-				logger.Info("collector monitor stopped by external context", zap.String("name", "collector-registry"), zap.Error(ctx.Err()))
+				logger.Info("collector metrics stopped by external context", zap.String("name", "collector-registry"), zap.Error(ctx.Err()))
 				return
 			case <-r.ctx.Done(): // 响应内部关闭信号（如主动调用 Shutdown）
 				r.ticker.Stop()
-				logger.Info("collector monitor stopped by internal shutdown", zap.String("name", "collector-registry"))
+				logger.Info("collector metrics stopped by internal shutdown", zap.String("name", "collector-registry"))
 				return
 			}
 		}
@@ -94,7 +94,7 @@ func (r *AgentImpl) Start(ctx context.Context) {
 
 // Shutdown 优雅关闭采集器（释放资源）
 func (r *AgentImpl) Shutdown(ctx context.Context) error {
-	logger.Info("starting to shutdown collector monitor", zap.String("name", "collector-registry"))
+	logger.Info("starting to shutdown collector metrics", zap.String("name", "collector-registry"))
 
 	// 停止定时器（双重保险）
 	if r.ticker != nil {

@@ -67,7 +67,7 @@ Agent-Collector 是一款轻量级、高性能的数据采集代理工具，专�
 ```bash
 # 克隆代码仓库
 git clone https://github.com/SketcOnly/agent-collector.git
-cd monitor-collector
+cd metrics-collector
 ```
 
 ### 2. 依赖安装
@@ -115,7 +115,7 @@ forward:
 kafka:
 enable: false             # 是否启用 Kafka 转发
 brokers: ["127.0.0.1:9092"] # Kafka 集群地址
-topic: "monitor-collector-data" # 转发目标 Topic
+topic: "metrics-collector-data" # 转发目标 Topic
 http:
 enable: false             # 是否启用 HTTP 转发
 url: "http://127.0.0.1:8081/receive" # 回调地址
@@ -124,7 +124,7 @@ url: "http://127.0.0.1:8081/receive" # 回调地址
 ### 4. 本地启动
 ```bash
 # 直接启动
-go run cmd/monitor-collector/main.go
+go run cmd/metrics-collector/main.go
 # 或使用 Make 启动（推荐，包含编译优化）
 make run
 ```
@@ -217,10 +217,10 @@ git commit -m "合并 dev 分支，解决冲突"
 make build
 
 # 2. 启动服务（指定配置文件）
-./bin/monitor-collector --config configs/config.yaml
+./bin/metrics-collector --config configs/config.yaml
 
 # 3. 后台运行（Linux/macOS）
-nohup ./bin/monitor-collector --config configs/config.yaml > ./logs/monitor-collector.log 2>&1 &
+nohup ./bin/metrics-collector --config configs/config.yaml > ./logs/metrics-collector.log 2>&1 &
 ```
 
 ## 更新日志：
