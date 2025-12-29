@@ -1,30 +1,44 @@
+# 服务器核心配置
 server:
-  addr: "0.0.0.0:9090"
-  read_timeout: "60s"
-  write_timeout: "60s"
-  idle_timeout: "120s"
+  addr: "0.0.0.0:9090"                    # HTTP服务监听地址和端口（用于指标查询、配置管理接口）
+  read_timeout: "60s"                     # HTTP请求读取超时时间
+  write_timeout: "60s"                    # HTTP响应写入超时时间
+  idle_timeout: "120s"                    # HTTP连接空闲超时时间
+  collector: "default"                    # 默认采集器标识字段值
 
+# 日志系统配置
+logs:
+  level: "debug"                          # 日志级别（debug/info/warn/error/fatal）
+  format: "console"                          # 日志输出格式（json/text）
+  path: "./app_logs"                      # 日志文件存储目录
+  max_size: 200                           # 单个日志文件最大大小（单位：MB）
+  max_backup: 50                          # 日志文件最大备份数量
+  max_age: 14                             # 日志文件最大保留天数
+  compress: true                          # 是否压缩归档的日志文件
+
+# 系统指标采集配置
 monitor:
-  interval: "2s"
-  collectors:
-    proc:
-      enable: true
-      collect_per_core: false
-      load_sample_cycle: "1s"
-    sys:
-      enable: true
-      ignore_disks: ["/dev/sda", "/dev/sdb"]
-      ignore_networks: ["lo", "docker0"]
-    cgroup:
-      enable: true
-    container_runtime:
-      enable: false
+  interval: "2s"                          # 指标采集周期（全局采集间隔）
+  collectors:                             # 各类型采集器细分配置
+    proc:                                 # 进程/CPU相关指标采集器
+      enable: true                        # 是否启用进程/CPU采集
+      collect_per_core: false             # 是否按CPU核心维度采集（false则汇总所有核心）
+      load_sample_cycle: "1s"             # CPU负载采样周期
+    sys:                                  # 系统级指标采集器（磁盘/网络/内存等）
+      enable: true                        # 是否启用系统指标采集
+      ignore_disks: ["/dev/sda", "/dev/sdb"]  # 忽略采集的磁盘设备列表
+      ignore_networks: ["lo", "docker0"]  # 忽略采集的网络接口列表（lo=本地回环，docker0=docker网桥）
+    cgroup:                               # Cgroup容器组指标采集器
+      enable: true                        # 是否启用Cgroup采集（适用于容器化环境）
+    container_runtime:                    # 容器运行时指标采集器（Docker/Containerd等）
+      enable: false                       # 是否启用容器运行时采集
 
-log:
-  level: "debug"
-  format: "json"
-  path: "./app_logs"
-  max_size: 200
-  max_backup: 50
-  max_age: 14
-  compress: true
+# 数据转发配置（指标数据输出）
+forward:
+  kafka:
+    enable: false                         # 是否启用Kafka转发模式
+  brokers: ["127.0.0.1:9092"]            # Kafka集群地址列表（broker地址）
+  topic: "metrics-collector-data"         # Kafka转发目标Topic名称
+http:
+  enable: false                           # 是否启用HTTP转发模式
+  url: "http://127.0.0.1:8081/receive"    # HTTP转发回调地址（接收指标数据的接口）

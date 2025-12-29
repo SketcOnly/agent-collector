@@ -40,4 +40,5 @@ deploy:
 	ssh -i $(SSH_KEY) $(REMOTE_USER)@$(REMOTE_HOST) '[ -f $(REMOTE_FILE) ] && rm -f $(REMOTE_FILE) && echo "$(RED)[WARNING] Old file removed.$(RESET)" || echo "$(GREEN)[INFO] No existing file to remove.$(RESET)"'
 	@echo "$(YELLOW)[INFO] Deploying new file...$(RESET)"
 	scp -i $(SSH_KEY) $(OUTPUT) $(REMOTE_USER)@$(REMOTE_HOST):$(REMOTE_PATH)
+
 	@echo "$(GREEN)[SUCCESS] File deployed successfully.$(RESET)"

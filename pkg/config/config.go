@@ -18,7 +18,7 @@ var valid = validator.New()
 type Config struct {
 	Server  ServerConfig  `yaml:"server" mapstructure:"server" comment:"HTTP服务配置"` // 简化yaml键名（原 server_config → server，更简洁）
 	Monitor MonitorConfig `yaml:"metrics" mapstructure:"metrics" comment:"监控采集配置"` // 简化yaml键名（原 monitor_config → metrics）
-	Log     ZapLogConfig  `yaml:"log" mapstructure:"log" comment:"日志配置"`           // 简化yaml键名（原 logs_config → log）
+	Log     ZapLogConfig  `yaml:"logs" mapstructure:"logs" comment:"日志配置"`         // 简化yaml键名（原 logs_config → log）
 }
 
 // ServerConfig HTTP服务配置（超时统一为time.Duration，支持"30s"解析）
