@@ -112,6 +112,7 @@ func RegisterCollectors(agent Agent, cfg *config.Config, metricFactory metrics.M
 	}
 	if len(registered) == 0 {
 		return nil, fmt.Errorf("no collectors enabled; check your CollectorConfig")
+
 	}
 	// 日志输出所有已启用的采集器（便于排查配置）
 	var names []string

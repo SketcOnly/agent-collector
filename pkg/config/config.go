@@ -5,7 +5,9 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -126,9 +128,32 @@ func LoadConfigWithCli(cmd *cobra.Command) (*Config, error) {
 	v := viper.New()
 
 	// 1. 绑定 Cobra Flags → Viper
-	if err := v.BindPFlags(cmd.Flags()); err != nil {
+	if err := v.BindPFlags(cmd.PersistentFlags()); err != nil {
 		return nil, fmt.Errorf("bind flags: %w", err)
 	}
+
+	// 强制解析命令行参数,取保Flag被正确赋值
+	_ = cmd.ParseFlags(os.Args[1:])
+	// 遍历所有ParseFlags，将以及解析到的手动赋值给v
+	cmd.PersistentFlags().VisitAll(func(f *pflag.Flag) {
+		if f.Changed { // 只处理命令行显式传入的 Flag（已被修改的）
+			// 根据 Flag 类型，转换后设置到 Viper
+			switch f.Value.Type() {
+			case "string":
+				v.Set(f.Name, f.Value.String())
+			case "bool":
+				val, _ := strconv.ParseBool(f.Value.String())
+				v.Set(f.Name, val)
+			case "duration":
+				// 已绑定 duration 类型，直接设置字符串即可，viper 会自动解析
+				v.Set(f.Name, f.Value.String())
+			default:
+				// 其他类型（int 等）可按需扩展
+				v.Set(f.Name, f.Value.String())
+			}
+		}
+	})
+	fmt.Println("Using config file:", viper.ConfigFileUsed())
 
 	// 2. 解析配置文件 (--config)
 	configFile, _ := cmd.Flags().GetString("config")

@@ -2,12 +2,14 @@ package agent
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/agent-collector/cmd/server"
 	"github.com/agent-collector/pkg/config"
 	"github.com/agent-collector/pkg/logger"
 	"github.com/agent-collector/pkg/registers"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"os"
 )
 
@@ -33,7 +35,7 @@ var rootCmd = &cobra.Command{
 			fmt.Fprintf(os.Stderr, "Service startup failed: %v\n", err)
 			os.Exit(1)
 		}
-		//return runServer(cmd.Context(), GlobalCfg)
+
 		return nil
 	},
 }
@@ -52,10 +54,12 @@ func init() {
 
 func runServer(ctx context.Context, cfg *config.Config) error {
 
-	//初始化配置校验
-	//if err := cfg.Validate(); err != nil {
-	//	return fmt.Errorf("配置校验失败: %w", err)
-	//}
+	fmt.Println("===== 日志初始化前的 Log 配置 =====") // 先用 Warn 级别（确保能输出，不受当前日志级别影响）
+	fmt.Printf("Log Level from GlobalCfg: %s\n", cfg.Log.Level)
+	fmt.Printf("Log Format from GlobalCfg: %s\n", cfg.Log.Format)
+	// 同时打印 Viper 中的 log 配置，交叉验证
+	fmt.Printf("Log Level from Viper: %s\n", viper.GetString("log.level"))
+	fmt.Printf("Log Format from Viper: %s\n", viper.GetString("log.format"))
 
 	//初始化日志
 	initLogger, err := logger.InitLogger(&cfg.Log)
@@ -72,6 +76,14 @@ func runServer(ctx context.Context, cfg *config.Config) error {
 	httpServer := server.NewHTTPServer(cfg, initLogger, registry)
 	if err := httpServer.Start(); err != nil {
 		return fmt.Errorf("start HTTP server failed: %w", err)
+	}
+	//return runServer(cmd.Context(), GlobalCfg)
+	cfgJson, err := json.MarshalIndent(GlobalCfg, "", "  ")
+	if err != nil {
+		logger.Warn("Failed to marshal GlobalCfg to JSON: %v\", err")
+	} else {
+		logger.Info("==========完整配置==========")
+		logger.Info(string(cfgJson))
 	}
 
 	server.WaitForShutdown(func() error {
