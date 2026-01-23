@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+	
 	"github.com/spf13/viper"
 )
 
@@ -18,9 +18,9 @@ var valid = validator.New()
 
 // Config 全局配置结构体（聚合所有核心模块）
 type Config struct {
-	Server  ServerConfig  `yaml:"server" mapstructure:"server" comment:"HTTP服务配置"` // 简化yaml键名（原 server_config → server，更简洁）
+	Server  ServerConfig  `yaml:"server" mapstructure:"server" comment:"HTTP服务配置"`   // 简化yaml键名（原 server_config → server，更简洁）
 	Monitor MonitorConfig `yaml:"metrics" mapstructure:"metrics" comment:"监控采集配置"` // 简化yaml键名（原 monitor_config → metrics）
-	Log     ZapLogConfig  `yaml:"logs" mapstructure:"logs" comment:"日志配置"`         // 简化yaml键名（原 logs_config → log）
+	Log     ZapLogConfig  `yaml:"log" mapstructure:"log" comment:"日志配置"`             // 简化yaml键名（原 log_config → log）
 }
 
 // ServerConfig HTTP服务配置（超时统一为time.Duration，支持"30s"解析）
@@ -40,8 +40,8 @@ type MonitorConfig struct {
 // CollectorConfig 多数据源采集器配置（简化字段名，避免冗余）
 type CollectorConfig struct {
 	Proc      ProcDataSourceConfig   `yaml:"proc" mapstructure:"proc" comment:"Linux /proc 数据源（CPU/内存等）"`                               // 原 enable_proc_data_source → proc（语义更清晰）
-	Sys       SysDataSourceConfig    `yaml:"sys" mapstructure:"sys" comment:"Linux /sys 数据源（磁盘/网络等）"`                                   // 原 enable_sys_data_source → sys
-	Cgroup    CgroupDataSourceConfig `yaml:"cgroup" mapstructure:"cgroup" comment:"Cgroup v1/v2 数据源（容器资源限制）"`                           // 原 enable_cgroup_data_source → cgroup
+	Sys       SysDataSourceConfig    `yaml:"sys" mapstructure:"sys" comment:"Linux /sys 数据源（磁盘/网络等）"`                                 // 原 enable_sys_data_source → sys
+	Cgroup    CgroupDataSourceConfig `yaml:"cgroup" mapstructure:"cgroup" comment:"Cgroup v1/v2 数据源（容器资源限制）"`                        // 原 enable_cgroup_data_source → cgroup
 	Container ContainerRuntimeConfig `yaml:"container_runtime" mapstructure:"container_runtime" comment:"容器运行时API（Docker/containerd等）"` // 简化结构体名
 }
 
@@ -126,12 +126,12 @@ func NewDefaultConfig() *Config {
 func LoadConfigWithCli(cmd *cobra.Command) (*Config, error) {
 	cfg := NewDefaultConfig()
 	v := viper.New()
-
+	
 	// 1. 绑定 Cobra Flags → Viper
 	if err := v.BindPFlags(cmd.PersistentFlags()); err != nil {
 		return nil, fmt.Errorf("bind flags: %w", err)
 	}
-
+	
 	// 强制解析命令行参数,取保Flag被正确赋值
 	_ = cmd.ParseFlags(os.Args[1:])
 	// 遍历所有ParseFlags，将以及解析到的手动赋值给v
@@ -154,13 +154,13 @@ func LoadConfigWithCli(cmd *cobra.Command) (*Config, error) {
 		}
 	})
 	fmt.Println("Using config file:", viper.ConfigFileUsed())
-
+	
 	// 2. 解析配置文件 (--config)
 	configFile, _ := cmd.Flags().GetString("config")
 	if configFile != "" {
 		if _, err := os.Stat(configFile); os.IsNotExist(err) {
 			fmt.Fprintf(os.Stderr, "The configuration file %s does not exist. The default configuration will be used (can be overridden via Flags/ENV)\n", configFile)
-
+			
 		} else {
 			//	 文件存在 -> 正常加载（加载后会覆盖默认配置）
 			v.SetConfigFile(configFile)
@@ -169,13 +169,13 @@ func LoadConfigWithCli(cmd *cobra.Command) (*Config, error) {
 			}
 			fmt.Fprintf(os.Stdout, "configuration file loaded successfully: %s\n", configFile)
 		}
-
+		
 	}
-
+	
 	// 3. 绑定环境变量 ENV -> Viper （HTTP_ADDR -> http.addr）
 	v.AutomaticEnv()
 	v.SetEnvKeyReplacer(strings.NewReplacer("_", "."))
-
+	
 	// 4. 解码反序列化到结构体（支持 time.Duration）
 	decoderConfig := &mapstructure.DecoderConfig{
 		Metadata:         nil,
@@ -186,23 +186,24 @@ func LoadConfigWithCli(cmd *cobra.Command) (*Config, error) {
 			mapstructure.StringToSliceHookFunc(","),
 		),
 	}
-
+	
 	decoder, err := mapstructure.NewDecoder(decoderConfig)
 	if err != nil {
 		return nil, fmt.Errorf("new decoder: %w", err)
 	}
-
+	
 	// 解码（此时: 默认配置 -> 文件配置(如有) -> Flags -> ENV的优先级）
 	if err := decoder.Decode(v.AllSettings()); err != nil {
 		return nil, fmt.Errorf("decode config: %w", err)
 	}
-
+	
 	// 5. 校验配置
 	if err := cfg.Validate(); err != nil {
 		return nil, fmt.Errorf("validate config: %w", err)
 	}
-
+	
 	return cfg, nil
+	
 }
 
 // Validate 配置校验
@@ -219,7 +220,7 @@ func (c *Config) Validate() error {
 	if err := c.Monitor.Validate(); err != nil {
 		return err
 	}
-
+	
 	// 	3，校验日志配置
 	if err := c.Log.Validate(); err != nil {
 		return err

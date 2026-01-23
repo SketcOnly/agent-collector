@@ -12,7 +12,7 @@ func initLogFlags(root *cobra.Command) {
 	f.String(
 		logPrefix+"level",
 		defaultCfg.Log.Level,
-		"-> Log level [info,debug] | 日志级别 [info,debug]")
+		"Log level [info,debug] | 日志级别 [info,debug]")
 	f.String(
 		logPrefix+"format",
 		defaultCfg.Log.Format,
