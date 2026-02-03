@@ -12,9 +12,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	
+
 	"github.com/prometheus/client_golang/prometheus"
-	
+
 	"go.uber.org/zap"
 )
 
@@ -37,13 +37,14 @@ type CPUCollector struct {
 	metrics         metrics.CPUCollectorMetrics
 	collectErrors   *prometheus.CounterVec
 	collectDuration *prometheus.HistogramVec
-	
+
 	loadCalculator *LoadCalculator // 负载计算器实例
 	stopLoadSample func()          // 负载采样停止函数
-	
+
 	cpuInfoInitialized bool                // 用来防止重复采集 CPU 静态信息，提升程序效率。
 	lastCPUTimes       map[string]CPUTimes // 存储上一次的CPU时间，用于计算使用率
-	
+
+	//
 	cpuId         string              // 逻辑CPU序号（processor字段）
 	modelName     string              // 型号名称
 	coreID        string              // 物理核心ID（core id字段，ARM用）
@@ -63,13 +64,14 @@ func NewCPUCollector(cfg *config.CollectorConfig, metricFactory metrics.MetricFa
 		calculator = nil
 	}
 	return &CPUCollector{
-		name:          "cpu-collector",
-		cfg:           cfg,
-		lastCPUTimes:  make(map[string]CPUTimes),
-		cpuId:         "",
-		modelName:     "",
-		coreID:        "0",
-		coreIDSet:     make(map[string]struct{}),
+		name:         "cpu-collector",
+		cfg:          cfg,
+		lastCPUTimes: make(map[string]CPUTimes),
+		cpuId:        "",
+		modelName:    "",
+		coreID:       "0",
+		coreIDSet:    make(map[string]struct{}),
+		//，这句哎名叫，可能需要二次接口，
 		hasCPUCores:   false,
 		physicalCores: 0,
 		finalCores:    0,
@@ -118,16 +120,16 @@ func (c *CPUCollector) Collect(ctx context.Context) error {
 	defer func() {
 		c.collectDuration.WithLabelValues(c.name).Observe(time.Since(start).Seconds())
 	}()
-	
+
 	logger.Debug("collect CPU info", zap.String("name", c.name))
-	
+
 	// 1. 采集CPU使用率 整体/每核
 	usageList, err := cpu.Percent(0, c.cfg.Proc.CollectPerCore)
 	if err != nil {
 		c.collectErrors.WithLabelValues(c.name).Inc()
 		return fmt.Errorf("get cpu usage failed: %w", err)
 	}
-	
+
 	// 2. 更新使用率指标
 	if c.cfg.Proc.CollectPerCore {
 		for i, usage := range usageList {
@@ -136,7 +138,7 @@ func (c *CPUCollector) Collect(ctx context.Context) error {
 	} else {
 		c.metrics.UsageRatio.WithLabelValues("total").Set(usageList[0] / 100)
 	}
-	
+
 	// 3. 采集CPU负载
 	if c.loadCalculator != nil {
 		load1, load5, load15, initialized := c.loadCalculator.GetLoads()
@@ -153,13 +155,17 @@ func (c *CPUCollector) Collect(ctx context.Context) error {
 		logger.Warn("load collection is disabled (load calculator not available)")
 		c.collectErrors.WithLabelValues(c.name).Inc()
 	}
-	
+
+	if c.cfg.Proc.CollectPerCore {
+
+	}
+
 	// UsagePercent/UsageModePercent
 	if err = c.collectCPUFromProc(); err != nil {
 		logger.Error("failed to collect CPU info", zap.Error(err))
 		c.collectErrors.WithLabelValues(c.name).Inc()
 	}
-	
+
 	// CPUInfo
 	if err := c.collectCPUInfoFromProc(); err != nil {
 		logger.Error("failed to collect CPU info from proc", zap.Error(err))
@@ -188,7 +194,7 @@ func (c *CPUCollector) collectCPUFromProc() error {
 		if cpu_id == "cpu" {
 			cpu_id = "total" // 总览行重命名为total，统一标签格式
 		}
-		
+
 		// 初始化CPU时间结构体，缺失字段默认0.0
 		times := CPUTimes{}
 		// 动态解析字段：按顺序读取，存在则解析，不存在则保持默认0.0
@@ -217,7 +223,8 @@ func (c *CPUCollector) collectCPUFromProc() error {
 		if len(fields) >= 9 {
 			times.Steal, _ = strconv.ParseFloat(fields[8], 64)
 		}
-		
+		//。这个就是一个接口，可以是实例，感觉
+
 		//  计算总时间
 		total := times.User + times.Nice + times.System + times.Idle + times.Iowait + times.Irq + times.Softirq + times.Steal
 		//  如果有上一次的记录，计算使用率
@@ -241,14 +248,14 @@ func (c *CPUCollector) collectCPUFromProc() error {
 		deltaSteal := times.Steal - lastTime.Steal
 		deltaTotal := total - (lastTime.User + lastTime.Nice + lastTime.System + lastTime.Idle +
 			lastTime.Iowait + lastTime.Irq + lastTime.Softirq + lastTime.Steal)
-		
+
 		// 避免除零（理论上deltaTotal不会为0，除非CPU完全未工作）
 		if deltaTotal <= 0 {
 			logger.Debug("CPU total time not changed (skip usage calc)", zap.String("cpu", cpu_id))
 			c.lastCPUTimes[cpu_id] = times // 更新最新时间，避免下次仍用旧数据
 			continue
 		}
-		
+
 		// 1. 更新各模式使用率指标（兼容缺失字段：缺失模式的delta为0，使用率显示0%）
 		modeMetrics := map[string]float64{
 			"user":    deltaUser,
@@ -260,7 +267,7 @@ func (c *CPUCollector) collectCPUFromProc() error {
 			"softirq": deltaSoftirq,
 			"steal":   deltaSteal,
 		}
-		
+
 		for mode, delta := range modeMetrics {
 			usagePercent := delta / deltaTotal * 100
 			c.metrics.UsageModePercent.WithLabelValues(cpu_id, mode).Set(usagePercent)
@@ -269,7 +276,7 @@ func (c *CPUCollector) collectCPUFromProc() error {
 		// 2. 更新总使用率指标（100% - 空闲率）
 		totalUsagePercent := (deltaTotal - deltaIdle) / deltaTotal * 100
 		c.metrics.UsagePercent.WithLabelValues(cpu_id).Set(totalUsagePercent)
-		
+
 		// 调试日志：输出核心指标（仅保留关键信息，避免日志冗余）
 		logger.Debug("collected CPU mode usage",
 			zap.String("cpu", cpu_id),
@@ -277,7 +284,7 @@ func (c *CPUCollector) collectCPUFromProc() error {
 			zap.Float64("system", modeMetrics["system"]/deltaTotal*100),
 			zap.Float64("idle", modeMetrics["idle"]/deltaTotal*100),
 			zap.Float64("total", totalUsagePercent))
-		
+
 		// 保存当前时间，作为下次采集的历史基准
 		c.lastCPUTimes[cpu_id] = times
 	}
@@ -296,7 +303,7 @@ func (c *CPUCollector) collectCPUInfoFromProc() error {
 	}
 	defer open.Close()
 	buf := bufio.NewScanner(open)
-	
+
 	for buf.Scan() {
 		line := buf.Text()
 		splitN := strings.SplitN(line, ":", 2)
@@ -338,7 +345,7 @@ func (c *CPUCollector) collectCPUInfoFromProc() error {
 		c.metrics.CPUInfo.WithLabelValues(
 			c.cpuId, c.modelName, strconv.FormatInt(c.finalCores, 10), // 最终核心数转字符串
 		).Set(1)
-		
+
 		logger.Debug("collected CPU static info",
 			zap.String("cpu_id", c.cpuId),
 			zap.String("model_name", c.modelName),
@@ -349,9 +356,9 @@ func (c *CPUCollector) collectCPUInfoFromProc() error {
 	logger.Info("CPU static info collection completed",
 		zap.Int64("physical_cores", c.finalCores),
 		zap.Int64("logical_cores", c.logicalCores))
-	
+
 	return buf.Err()
-	
+
 }
 func (c *CPUCollector) Close() error {
 	if c.stopLoadSample != nil {

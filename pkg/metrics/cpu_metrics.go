@@ -22,7 +22,8 @@ func (m *MetricFactory) NewCPULoad1() prometheus.Gauge {
 	m.reg.MustRegister(g)
 	return g
 }
-
+// 这个就是，接口，dudo
+x``x``
 func (m *MetricFactory) NewCPULoad5() prometheus.Gauge {
 	g := prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "cpu_load5",
